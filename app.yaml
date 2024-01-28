@@ -1,5 +1,8 @@
 runtime: python39
 
+runtime_config:
+ python_version: 3
+ 
 env_variables:
   DATASTORE_PROJECT_ID: "capstone_citizen_science"
 
