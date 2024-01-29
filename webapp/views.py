@@ -7,17 +7,20 @@ from flask import Flask, render_template
 auth_bp = Blueprint('auth', __name__)
 webapp_bp = Blueprint('webapp', __name__)
 
+
 @webapp_bp.route("/")
 def home():
     """
     """
     return render_template('index.html')
 
+
 @webapp_bp.route("/test")
 def test():
     """
     """
     return "test"
+
 
 @webapp_bp.route("/profile")
 @requires_auth
