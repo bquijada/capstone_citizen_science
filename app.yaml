@@ -4,7 +4,7 @@ runtime_config:
  python_version: 3
  
 env_variables:
-  DATASTORE_PROJECT_ID: "capstone_citizen_science"
+  DATASTORE_PROJECT_ID: "capstone-citizen-science"
 
 handlers:
   # This handler routes all requests not caught above to your main app. It is

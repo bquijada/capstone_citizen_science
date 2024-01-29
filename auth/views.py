@@ -4,6 +4,7 @@ from flask import Flask, render_template
 import os
 from google.cloud import datastore
 import requests
+
 client = datastore.Client()
 auth_bp = Blueprint('auth', __name__)
 
@@ -25,6 +26,7 @@ oauth.register(
     client_kwargs={
         'scope': 'openid profile email',
     },
+    server_metadata_url=f'https://{domain}/.well-known/openid-configuration'
 )
 
 
@@ -46,6 +48,7 @@ def callback():
         user_id = user_info.get('sub')  # 'sub' is the user ID in Auth0
         user_name = user_info.get('name')
         user_email = user_info.get('email')
+        print(user_name, user_email, user_id)
     else:
         return 'Failed to get user information from Auth0', 500
     # add user to database in not already added
