@@ -7,20 +7,25 @@ auth_bp = Blueprint('auth', __name__)
 
 
 oauth = OAuth(current_app)
-
-domain = os.getenv("DOMAIN")
+CLIENT_ID="xm0b7wYkKdz7dtc0XsecmO8z5BPCMFrf"
+CLIENT_SECRET="33rY21_EpoVNkXSyky5hoR0UFjrpq8feQUz9Nt6J6xUto5kOcol2LOVUhklAQvzn"
+DOMAIN="leungp.us.auth0.com"
+domain = "leungp.us.auth0.com"
 client_id = os.getenv("CLIENT_ID")
 client_secret = os.getenv("CLIENT_SECRET")
 
 oauth.register(
-    "auth0",
-    client_id=client_id,
-    client_secret=client_secret,
+   'auth0',
+    client_id=CLIENT_ID,
+    client_secret=CLIENT_SECRET,
+    api_base_url="https://" + domain,
+    access_token_url="https://" + domain + "/oauth/token",
+    authorize_url="https://" + domain + "/authorize",
     client_kwargs={
-        "scope": "openid profile email",
+        'scope': 'openid profile email',
     },
-    server_metadata_url=f'https://{domain}/.well-known/openid-configuration'
 )
+
 
 @auth_bp.route("/callback", methods=["GET", "POST"])
 def callback():

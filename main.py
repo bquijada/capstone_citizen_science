@@ -11,7 +11,7 @@ import requests
 
 app = Flask(__name__)
 
-app.secret_key = os.getenv("SECRET_KEY") 
+app.secret_key = "1234567890"
 app.register_blueprint(auth_bp, url_prefix='/')
 app.register_blueprint(webapp_bp, url_prefix='/')
 
