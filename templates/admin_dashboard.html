@@ -1,21 +1,16 @@
 {% extends "base.html" %}
-
 {% block title %}Admin Dashboard{% endblock %}
-
 {% block content %}
 
-<!-- Admin Dashboard Content -->
-<div class="jumbotron">
-    <h1 class="display-4">Dashboard</h1>
+<div>
+    <h1">Dashboard</h1>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <ul class="list-group">
-            <li class="list-group-item"><a href="{{ url_for('create_new_project') }}">Create New Project</a></li>
-            <li class="list-group-item"><a href="{{ url_for('view_projects') }}">View Projects</a></li>
-        </ul>
-    </div>
+<div>
+    <ul class="list-group">
+        <li class="list-group-item"><a href="{{ url_for('create_new_project') }}">Create New Project</a></li>
+        <li class="list-group-item"><a href="{{ url_for('view_projects') }}">View Projects</a></li>
+    </ul>
 </div>
 
 {% endblock %}
