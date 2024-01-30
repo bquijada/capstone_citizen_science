@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}View Projects{% endblock %}
+
+{% block content %}
+<!-- View Projects Page -->
+<div class="jumbotron">
+    <h1 class="display-4">View Projects</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>Your Projects</h2>
+        <ul class="list-group">
+            {% for project in user_projects %}
+            <li class="list-group-item">
+                <a href="{{ url_for('project_details', project_id=project.id) }}">{{ project.name }}</a>
+                <span class="badge badge-primary">{{ project.status }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% extends "base.html" %}
+{% block title %}View Projects - Citizen Science App{% endblock %}
+
+{% block content %}
+    <h2>View Projects</h2>
+
+    <!-- Filter options -->
+    <div class="filter-options">
+        <label for="search">Search:</label>
+        <input type="text" id="search" name="search" placeholder="Search projects...">
+    </div>
+
+    <!-- Project list -->
+    <div class="project-list">
+        <ul>
+            {% for project in projects %}
+                <li>
+                    <h3>{{ project.name }}</h3>
+                    <p>{{ project.instructions }}</p>
+                    <a href="/admin/view_results/{{ project.id }}">View Results</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
