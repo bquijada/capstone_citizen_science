@@ -3,7 +3,7 @@
 {% block title %}Create New Project{% endblock %}
 
 {% block content %}
-<!-- Create New Project Form -->
+
 <div class="jumbotron">
     <h1 class="display-4">Create New Project</h1>
 </div>
@@ -13,17 +13,15 @@
         <label for="project_name">Project Name:</label>
         <input type="text" class="form-control" id="project_name" name="project_name" required>
     </div>
+    
     <div class="form-group">
         <label for="project_instructions">Project Instructions:</label>
         <textarea class="form-control" id="project_instructions" name="project_instructions" rows="3" required></textarea>
     </div>
     
-     <div id="data_collection_methods">
-        <!-- Data Collection Method Fields will be added here dynamically -->
-    </div>
-    
-    <button type="button" class="btn btn-success" onclick="addDataCollectionMethod()">Add Data Collection Method</button>
-    <button type="submit" class="btn btn-primary">Create Project</button>
+    <div id="data_collection_methods"></div>
+        <button type="button" class="btn btn-success" onclick="addDataCollectionMethod()">Add Data Collection Method</button>
+        <button type="submit" class="btn btn-primary">Create Project</button>
     </div>
     
 </form>
