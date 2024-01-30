@@ -14,8 +14,8 @@
             <!-- Update with database entity names -->
             {% for project in user_projects %}
             <li class="list-group-item">
-                <a href="{{ url_for('project_details', project_id=project.id) }}">{{ project.name }}</a>
-                <span class="badge badge-primary">{{ project.status }}</span>
+                <a href="{{ url_for('results', project_id=project.id) }}">{{ project.name }}</a>
+                <span>{{ project.status }}</span>
             </li>
             
             {% endfor %}
