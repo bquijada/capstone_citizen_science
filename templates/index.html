@@ -1,16 +1,11 @@
-<!doctype html>
+{% extends "base.html" %}
+{% block title %}Welcome to Citizen Science App{% endblock %}
+{% block content %}
 
-<html>
-<head>
-  <title>Citizen Science Admin Site</title>
-  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-
+<div class="login-auth">
   <h1>Welcome To Citizen Science Admin Site</h1>
     <p>By Clicking on the link below you will be redirected to a login with Auth0. </p>
     <a href="\login">Authentication</a>
+</div>
 
-
-</body>
-</html>
+{% endblock %}

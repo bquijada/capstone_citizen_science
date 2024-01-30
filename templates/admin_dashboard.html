@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<div>
+    <h1">Dashboard</h1>
+</div>
+
+<div>
+    <ul class="list-group">
+        <li class="list-group-item"><a href="{{ url_for('create_new_project') }}">Create New Project</a></li>
+        <li class="list-group-item"><a href="{{ url_for('view_projects') }}">View Projects</a></li>
+    </ul>
+</div>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Project{% endblock %}
+
+{% block content %}
+
+<div>
+    <h1>Create New Project</h1>
+</div>
+
+<form method="POST" action="{{ url_for('create_project') }}">
+    <div class="form-group">
+        <label for="project_name">Project Name:</label>
+        <input type="text" class="form-control" id="project_name" name="project_name" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="project_instructions">Project Instructions:</label>
+        <textarea class="form-control" id="project_instructions" name="project_instructions" rows="3" required></textarea>
+    </div>
+
+    <!-- Update what id name(s) for data collection method(s) -->
+    <div id="data_collection_methods"></div>
+        <button type="button" class="btn btn-success" onclick="addDataCollectionMethod()">Add Data Collection Method</button>
+        <button type="submit" class="btn btn-primary">Create Project</button>
+    </div>
+    
+</form>
+
+<script>
+    var methodCount = 0;
+
+    function addDataCollectionMethod() {
+        var methodContainer = document.createElement('div');
+        methodContainer.classList.add('form-group');
+
+        var selectHtml = `<select class="form-control" name="data_collection_method_${methodCount}" required>
+            <option value="checkbox">Checkbox</option>
+            <option value="dropdown">Dropdown</option>
+            <option value="number_input">Number Input</option>
+            <option value="text_input">Text Input</option>
+        </select>`;
+        var deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.classList.add('btn', 'btn-danger');
+        deleteButton.onclick = function() {
+            methodContainer.remove();
+        };
+
+        methodContainer.innerHTML = selectHtml;
+        methodContainer.appendChild(deleteButton);
+
+        document.getElementById('data_collection_methods').appendChild(methodContainer);
+        methodCount++;
+    }
+</script>
+
+{% endblock %}
+
