@@ -4,8 +4,8 @@
 
 {% block content %}
 
-<div class="jumbotron">
-    <h1 class="display-4">Create New Project</h1>
+<div>
+    <h1>Create New Project</h1>
 </div>
 
 <form method="POST" action="{{ url_for('create_project') }}">
@@ -18,7 +18,8 @@
         <label for="project_instructions">Project Instructions:</label>
         <textarea class="form-control" id="project_instructions" name="project_instructions" rows="3" required></textarea>
     </div>
-    
+
+    <!-- Update what id name(s) for data collection method(s) -->
     <div id="data_collection_methods"></div>
         <button type="button" class="btn btn-success" onclick="addDataCollectionMethod()">Add Data Collection Method</button>
         <button type="submit" class="btn btn-primary">Create Project</button>
