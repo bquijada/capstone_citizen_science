@@ -1,9 +1,7 @@
 {% extends "base.html" %}
-
 {% block title %}View Projects{% endblock %}
-
 {% block content %}
-<!-- View Projects Page -->
+
 <div>
     <h1>View Projects</h1>
 </div>
@@ -12,13 +10,17 @@
     <div class="col-md-12">
         <h2>Your Projects</h2>
         <ul class="list-group">
+
+            <!-- Update with database entity names -->
             {% for project in user_projects %}
             <li class="list-group-item">
                 <a href="{{ url_for('project_details', project_id=project.id) }}">{{ project.name }}</a>
                 <span class="badge badge-primary">{{ project.status }}</span>
             </li>
+            
             {% endfor %}
         </ul>
     </div>
 </div>
+
 {% endblock %}
