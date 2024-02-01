@@ -6,6 +6,7 @@ from flask import Flask, render_template
 
 webapp_bp = Blueprint('webapp', __name__)
 
+
 @webapp_bp.route("/")
 def home():
     """
