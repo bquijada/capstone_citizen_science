@@ -4,26 +4,23 @@ from flask import Flask, render_template
 import os
 
 auth_bp = Blueprint('auth', __name__)
-
-
 oauth = OAuth(current_app)
+
 CLIENT_ID="xm0b7wYkKdz7dtc0XsecmO8z5BPCMFrf"
 CLIENT_SECRET="33rY21_EpoVNkXSyky5hoR0UFjrpq8feQUz9Nt6J6xUto5kOcol2LOVUhklAQvzn"
 DOMAIN="leungp.us.auth0.com"
-domain = "leungp.us.auth0.com"
-client_id = os.getenv("CLIENT_ID")
-client_secret = os.getenv("CLIENT_SECRET")
 
 oauth.register(
    'auth0',
     client_id=CLIENT_ID,
     client_secret=CLIENT_SECRET,
-    api_base_url="https://" + domain,
-    access_token_url="https://" + domain + "/oauth/token",
-    authorize_url="https://" + domain + "/authorize",
+    api_base_url="https://" + DOMAIN,
+    access_token_url="https://" + DOMAIN + "/oauth/token",
+    authorize_url="https://" + DOMAIN + "/authorize",
     client_kwargs={
         'scope': 'openid profile email',
     },
+    server_metadata_url="https://leungp.us.auth0.com/.well-known/openid-configuration",
 )
 
 
@@ -63,7 +60,3 @@ def signup():
         redirect_uri=url_for("auth.callback", _external=True),
         screen_hint="signup"
     )
-
-@auth_bp.route("/test2")
-def test2():
-    return "test2"
