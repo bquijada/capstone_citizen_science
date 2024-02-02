@@ -64,7 +64,7 @@ def projects_get_post():
             })
 
         client.put(new_project)
-        return jsonify({"message": "Project created successfully"}), 201
+        return render_template('project.html', project_name=project_name, instructions=project_instructions)
 
     elif request.method == 'GET':
 

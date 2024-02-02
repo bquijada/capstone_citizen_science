@@ -47,14 +47,14 @@
         deleteButton.classList.add('btn', 'btn-danger');
         deleteButton.onclick = function() {
             methodContainer.remove();
-            updateMethodCount(-1); //
+            updateMethodCount(-1);
         };
 
         methodContainer.innerHTML = selectHtml;
         methodContainer.appendChild(deleteButton);
 
         document.getElementById('data_collection_methods').appendChild(methodContainer);
-        updateMethodCount(1); // Update methodCount when a new method is added
+        updateMethodCount(1);
     }
 
     function updateMethodCount(increment) {
