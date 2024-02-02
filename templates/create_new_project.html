@@ -8,7 +8,7 @@
     <h1>Create New Project</h1>
 </div>
 
-<form method="POST" action="{{ url_for('create_project') }}">
+<form method="POST" action="{{ url_for('datastore.projects_get_post') }}">
     <div class="form-group">
         <label for="project_name">Project Name:</label>
         <input type="text" class="form-control" id="project_name" name="project_name" required>

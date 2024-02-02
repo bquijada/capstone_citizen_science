@@ -28,7 +28,7 @@ def projects_get_post():
     if request.method == 'POST':
         code = code_generator(5,string.ascii_uppercase+string.digits)
 
-        #check if code generated is alreadt in the database
+        # check if code generated is already in the database
         query = client.query(kind="projects")
         query.add_filter("projects", "=", code)
         result = list(query.fetch())
@@ -36,22 +36,27 @@ def projects_get_post():
             code = code_generator(5,string.ascii_uppercase+string.digits)
             result = list(query.fetch())
 
-        content = request.get_json()
+        # Access form data using request.form
+        sub = request.form.get("sub")
+        project_name = request.form.get("project_name")
+        data_type = request.form.get("data_type")
+        data_parameters = request.form.get("data_parameters")
+
         new_project = datastore.entity.Entity(key=client.key("projects"))
         new_project.update({
-            "sub": content["sub"], 
-            "project_name": content["project_name"],
-            "code": code, 
-            "data_type":content["data_type"],
-            "data_parameters":content["data_parameters"],
+            "sub": sub,
+            "project_name": project_name,
+            "code": code,
+            "data_type": data_type,
+            "data_parameters": data_parameters,
             "data_list": [],
             })
-        
+
         client.put(new_project)
-        return 
-    
+        return jsonify({"message": "Project created successfully"}), 201
+
     elif request.method == 'GET':
-        
+
         #obtain sub of logged in user
         userinfo = session.get('user').get("userinfo")
         sub = userinfo.get("sub")
@@ -60,14 +65,14 @@ def projects_get_post():
         query = client.query(kind="projects")
         query.add_filter("sub", "=", sub)
         results = list(query.fetch())
-        
+
         #append id to results
         for e in results:
             e["id"] = e.key.id
 
         return jsonify(results)
     else:
-        return 'Method not recognized'
+        return jsonify({"error": "Only POST and GET requests are allowed for this endpoint"}), 405
 
 @datastore_bp.route("/data/<code>", methods=["GET", "POST"])
 def data_get_post(code):
@@ -82,7 +87,7 @@ def data_get_post(code):
         new_data = datastore.entity.Entity(key=client.key("data"))
         data_content = {
 
-            "code": code, 
+            "code": code,
             "time_date":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "data":content["data"],
             }
@@ -105,7 +110,7 @@ def data_get_post(code):
         query = client.query(kind="data")
         query.add_filter("code", "=", code)
         results = list(query.fetch())
-        
+
         #append id to results
         for e in results:
             e["id"] = e.key.id

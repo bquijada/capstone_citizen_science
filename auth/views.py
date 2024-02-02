@@ -1,3 +1,5 @@
+import json
+
 from flask import Blueprint, redirect, session, url_for, current_app
 from authlib.integrations.flask_client import OAuth
 from flask import Flask, render_template
@@ -7,7 +9,6 @@ import requests
 
 client = datastore.Client()
 auth_bp = Blueprint('auth', __name__)
-
 
 oauth = OAuth(current_app)
 CLIENT_ID = "xm0b7wYkKdz7dtc0XsecmO8z5BPCMFrf"
@@ -57,8 +58,7 @@ def callback():
         new_user = datastore.entity.Entity(key=client.key("users"))
         new_user.update({"user": user_id, "name": user_name, "email": user_email})
         client.put(new_user)
-    # The app assumes for a /profile path to be available, change here if it's not
-    return redirect("/profile")
+    return render_template('admin_dashboard.html', name=user_name)
 
 
 @auth_bp.route("/login")
@@ -89,3 +89,18 @@ def signup():
         redirect_uri=url_for("auth.callback", _external=True),
         screen_hint="signup"
     )
+
+
+@auth_bp.route("/create_new_project")
+def create_new_project():
+    return render_template('create_new_project.html')
+
+
+@auth_bp.route("/view_projects")
+def view_projects():
+    return render_template('view_projects.html')
+
+
+@auth_bp.route("/create_project")
+def create_project():
+    return render_template('project.html')
