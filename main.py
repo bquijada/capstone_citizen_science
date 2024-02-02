@@ -3,6 +3,7 @@ from flask import Flask, render_template
 
 from auth.views import auth_bp
 from webapp.views import webapp_bp
+from datastore.endpoints import datastore_bp
 
 import json
 import os
@@ -14,7 +15,7 @@ app = Flask(__name__)
 app.secret_key = "1234567890"
 app.register_blueprint(auth_bp, url_prefix='/')
 app.register_blueprint(webapp_bp, url_prefix='/')
-
+app.register_blueprint(datastore_bp, url_prefix='/')
 
 
 
