@@ -37,16 +37,27 @@ def projects_get_post():
             result = list(query.fetch())
 
         # Access form data using request.form
-        sub = request.form.get("sub")
+        userinfo = session.get('user').get("userinfo")
+        sub = userinfo.get("sub")
         project_name = request.form.get("project_name")
         data_type = request.form.get("data_type")
         data_parameters = request.form.get("data_parameters")
+        project_instructions = request.form.get("project_instructions")
+
+        data_collection_methods = []
+        for i in range(int(request.form.get("methodCount"))):
+            method_key = f'data_collection_method_{i}'
+            method_value = request.form.get(method_key)
+            if method_value:
+                data_collection_methods.append(method_value)
 
         new_project = datastore.entity.Entity(key=client.key("projects"))
         new_project.update({
             "sub": sub,
             "project_name": project_name,
             "code": code,
+            "project_instructions": project_instructions,
+            "data_collection_methods": data_collection_methods,
             "data_type": data_type,
             "data_parameters": data_parameters,
             "data_list": [],
@@ -57,7 +68,7 @@ def projects_get_post():
 
     elif request.method == 'GET':
 
-        #obtain sub of logged in user
+        # obtain sub of logged in user
         userinfo = session.get('user').get("userinfo")
         sub = userinfo.get("sub")
 
