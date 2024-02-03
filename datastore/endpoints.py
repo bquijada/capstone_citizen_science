@@ -24,85 +24,120 @@ def projects_get_post():
     """
     Get , Post a project
     """
-    print('outside', file=sys.stderr)
+    userinfo = session.get('user').get("userinfo")
+    user = userinfo.get("sub")
+
     if request.method == 'POST':
         code = code_generator(5,string.ascii_uppercase+string.digits)
 
         #check if code generated is alreadt in the database
+        
         query = client.query(kind="projects")
-        query.add_filter("projects", "=", code)
-        result = list(query.fetch())
-        while result:
-            code = code_generator(5,string.ascii_uppercase+string.digits)
+        results = list(query.fetch())
+        if results: #handles cases when project table is empty
+            query.add_filter("code", "=", code)
             result = list(query.fetch())
+            while result:
+                code = code_generator(5,string.ascii_uppercase+string.digits)
+                query.add_filter("code", "=", code)
+                result = list(query.fetch())
+  
+
 
         content = request.get_json()
         new_project = datastore.entity.Entity(key=client.key("projects"))
         new_project.update({
-            "sub": content["sub"], 
+            "user": user, 
             "project_name": content["project_name"],
+            "project_description": content["project_description"],
             "code": code, 
-            "data_type":content["data_type"],
-            "data_parameters":content["data_parameters"],
-            "data_list": [],
+            "observation_parameters":content["observation_parameters"],
+            "observation_list": []
             })
+        try:
+            client.put(new_project)
         
-        client.put(new_project)
-        return 
+            return jsonify({"code": code}), 201
+    
+        except Exception as e:
+
+            return jsonify({"Error":"Not able to create new project"})
+
     
     elif request.method == 'GET':
         
         #obtain sub of logged in user
         userinfo = session.get('user').get("userinfo")
-        sub = userinfo.get("sub")
+        user = userinfo.get("sub")
 
         #filter for projects created by user
         query = client.query(kind="projects")
-        query.add_filter("sub", "=", sub)
+        query.add_filter("user", "=", user)
         results = list(query.fetch())
         
         #append id to results
         for e in results:
             e["id"] = e.key.id
 
-        return jsonify(results)
+        return jsonify(results), 200
+    else:
+        return 'Method not recognized'
+    
+@datastore_bp.route("/projects/<code>", methods=["GET"])
+def projects_get_code(code):
+    """
+    Get , Post a project
+    """
+    
+    if request.method == 'GET':
+        
+        #filter for projects created by project code
+        query = client.query(kind="projects")
+        query.add_filter("code", "=", code)
+        results = list(query.fetch())
+        
+        #append id to results
+        for e in results:
+            e["id"] = e.key.id
+
+        return jsonify(results), 200
     else:
         return 'Method not recognized'
 
-@datastore_bp.route("/data/<code>", methods=["GET", "POST"])
-def data_get_post(code):
+@datastore_bp.route("/projects/<code>/observations", methods=["GET", "POST"])
+def observations_get_post(code):
     """
     GET , POST Data
     """
 
     if request.method == 'POST':
 
-        #Add new data entity
+        #Add new observation entity
         content = request.get_json()
-        new_data = datastore.entity.Entity(key=client.key("data"))
-        data_content = {
-
+        new_observation = datastore.entity.Entity(key=client.key("observations"))
+        observation_content = {
             "code": code, 
             "time_date":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "data":content["data"],
+            "observation":content["observation"],
+            "student_id":content["student_id"]
             }
-        new_data.update(data_content)
-        client.put(new_data)
-        new_data_id = str(new_data.key.id)
-        data_content["id"] = new_data_id
+        new_observation.update(observation_content)
+        client.put(new_observation)
+        new_data_id = str(new_observation.key.id)
+        observation_content["id"] = new_data_id
 
         #Update Project entity with new data.
         query = client.query(kind="projects")
         query.add_filter("code", "=", code)
         results = list(query.fetch())
         project = results[0]
-        project["data_list"].append(data_content)
+        project["observation_list"].append(observation_content)
         client.put(project)
-        return data_content
+        return observation_content, 201
     elif request.method == 'GET':
 
         #filter for projects created by user
-        query = client.query(kind="data")
+        query = client.query(kind="observations")
         query.add_filter("code", "=", code)
         results = list(query.fetch())
         
@@ -110,6 +145,6 @@ def data_get_post(code):
         for e in results:
             e["id"] = e.key.id
 
-        return jsonify(results)
+        return jsonify(results),200
     else:
         return 'Method not recognized'
