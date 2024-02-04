@@ -56,7 +56,7 @@ def callback():
     result = list(query.fetch())
     if not result:
         new_user = datastore.entity.Entity(key=client.key("users"))
-        new_user.update({"user": user_id, "name": user_name, "email": user_email})
+        new_user.update({"name": user_name, "email": user_email, "user": user_id })
         client.put(new_user)
     return render_template('admin_dashboard.html', name=user_name)
 
