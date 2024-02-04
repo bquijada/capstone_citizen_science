@@ -8,7 +8,7 @@
     <h1>Create New Project</h1>
 </div>
 
-<form method="POST" action="{{ url_for('create_project') }}">
+<form method="POST" action="{{ url_for('datastore.projects_get_post') }}">
     <div class="form-group">
         <label for="project_name">Project Name:</label>
         <input type="text" class="form-control" id="project_name" name="project_name" required>
@@ -18,6 +18,8 @@
         <label for="project_instructions">Project Instructions:</label>
         <textarea class="form-control" id="project_instructions" name="project_instructions" rows="3" required></textarea>
     </div>
+
+    <input type="hidden" id="methodCount" name="methodCount" value="{{ methodCount }}">
 
     <!-- Update what id name(s) for data collection method(s) -->
     <div id="data_collection_methods"></div>
@@ -45,13 +47,19 @@
         deleteButton.classList.add('btn', 'btn-danger');
         deleteButton.onclick = function() {
             methodContainer.remove();
+            updateMethodCount(-1);
         };
 
         methodContainer.innerHTML = selectHtml;
         methodContainer.appendChild(deleteButton);
 
         document.getElementById('data_collection_methods').appendChild(methodContainer);
-        methodCount++;
+        updateMethodCount(1);
+    }
+
+    function updateMethodCount(increment) {
+        methodCount += increment;
+        document.getElementById('methodCount').value = methodCount;
     }
 </script>
 
