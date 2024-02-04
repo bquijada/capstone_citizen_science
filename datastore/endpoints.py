@@ -43,7 +43,7 @@ def projects_get_post():
                 query.add_filter("code", "=", code)
                 result = list(query.fetch())
 
-        # Access form data using request.form
+        # Access form data using request.form (because form content-type is not json)
         userinfo = session.get('user').get("userinfo")
         sub = userinfo.get("sub")
         project_name = request.form.get("project_name")
@@ -60,14 +60,13 @@ def projects_get_post():
 
         new_project = datastore.entity.Entity(key=client.key("projects"))
         new_project.update({
-            "sub": sub,
+            "user": sub,
             "project_name": project_name,
             "code": code,
-            "project_instructions": project_instructions,
+            "project_description": project_instructions,
             "data_collection_methods": data_collection_methods,
-            "data_type": data_type,
-            "data_parameters": data_parameters,
-            "data_list": [],
+            "observation_parameters": data_parameters,
+            "observation_list": [],
         })
 
         try:
