@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create A New Project</title>
+    <link rel="stylesheet" href="static\styles.css">
+</head>
+<body>
+    <div id="app">
+        <h1>Create New Project</h1>
+        <form id="projectForm">
+            <label for="projectTitle">Title:</label>
+            <input type="text" id="projectTitle" required>
+            
+            <label for="projectDescription">Description:</label>
+            <textarea id="projectDescription" required></textarea>
+            
+            <div id="observationMethods">
+                <h2>Choose Observation Methods</h2>
+                <label for="methodName">Add A Method Type:</label>
+                <select id="methodName">
+                    <option value="" disabled selected>Select Method</option>
+                    <option value="Text">Text Entry</option>
+                    <option value="Dropdown">Dropdown Menu</option>
+                    <option value="Checkbox">Checkbox List</option>
+                    <option value="Numerical">Numerical Value</option>
+                </select>
+            </div>
+            
+            <button type="button" onclick="createProject(); this.disabled = true;">Create Project</button>
+        </form>
+    </div>
+
+    <script src="static\form.js"></script>
+</body>
+</html>

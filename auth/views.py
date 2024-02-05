@@ -47,7 +47,6 @@ def callback():
         user_id = user_info.get('sub')  # 'sub' is the user ID in Auth0
         user_name = user_info.get('name')
         user_email = user_info.get('email')
-        print(user_name, user_email, user_id)
     else:
         return 'Failed to get user information from Auth0', 500
     # add user to database in not already added
@@ -93,7 +92,7 @@ def signup():
 
 @auth_bp.route("/create_new_project")
 def create_new_project():
-    return render_template('create_new_project.html')
+    return render_template('new_project.html')
 
 
 @auth_bp.route("/view_projects")
