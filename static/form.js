@@ -1,20 +1,37 @@
+class InputItem {
+  constructor(type, prompt, options = null) {
+    this.prompt = prompt
+    this.type = type; // 'Text', 'Dropdown', 'Checkbox', 'Numerical'
+    this.options = options; // Used for 'dropdown' and 'checkbox' types
+  }
+}
+
+
+class Project {
+  constructor(title, description, observations) {
+    this.title = title
+    this.description = description;
+    this.observations = observations; // list of InputItem objects
+  }
+}
+
 let observationMethodCount = 0;
-let observations = [];
+let observation_methods = []
 
 // Adds observation method to a global list of observation methods
 function addObservationMethod(index, methodName) {
     const promptInput = document.getElementById(`prompt${index}`);
     const optionsInput = document.getElementById(`options${index}`);
+    let options = methodName === 'Dropdown' || methodName === 'Checkbox' ? optionsInput.value.split(',').map(option => option.trim()) : null
 
-    const observationMethod = {
-        methodName: methodName,
-        prompt: promptInput.value,
-        options: methodName === 'Dropdown' || methodName === 'Checkbox' ? optionsInput.value.split(',').map(option => option.trim()) : null
-    };
-
-    observations.push(observationMethod);
+    let methodItem = new InputItem(methodName, promptInput.value, options);
+    observation_methods.push(methodItem)
 
     observationMethodCount++;
+
+    // Clear input fields
+    promptInput.value = '';
+    optionsInput.value = '';
 
 }
 
@@ -44,13 +61,10 @@ function createProject() {
     const projectTitle = document.getElementById('projectTitle').value;
     const projectDescription = document.getElementById('projectDescription').value;
 
-    const payload = {
-        title: projectTitle,
-        description: projectDescription,
-        observations,
-    };
 
-    sendToDatabase('/projects', 'POST', payload)
+    let newProject = new Project(projectTitle, projectDescription, observation_methods);
+
+    sendToDatabase('/projects', 'POST', newProject)
         .then(response => {
             console.log('Project created successfully:', response);
         })
