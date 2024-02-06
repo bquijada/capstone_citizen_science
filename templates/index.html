@@ -3,9 +3,9 @@
 {% block content %}
 
 <div class="login-auth">
-  <h1>Welcome To Citizen Science Admin Site</h1>
-    <p>By Clicking on the link below you will be redirected to a login with Auth0. </p>
-    <a href="\login">Authentication</a>
+  <h1>Welcome To The Citizen Science Admin Site</h1>
+  <a href="{{ url_for('auth.login') }}">Login</a>
+  <a href="{{ url_for('auth.signup') }}">Sign Up</a>
 </div>
 
 {% endblock %}
