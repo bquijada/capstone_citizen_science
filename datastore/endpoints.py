@@ -46,32 +46,16 @@ def projects_get_post():
         # Access form data using request.form (because form content-type is not json)
         userinfo = session.get('user').get("userinfo")
         sub = userinfo.get("sub")
-        project_name = request.form.get("project_name")
-        data_type = request.form.get("data_type")
-        data_parameters = request.form.get("data_parameters")
-        project_instructions = request.form.get("project_instructions")
-
-        data_collection_methods = []
-        for i in range(int(request.form.get("methodCount"))):
-            method_key = f'data_collection_method_{i}'
-            method_value = request.form.get(method_key)
-            if method_value:
-                data_collection_methods.append(method_value)
+        content = request.get_json()
+        content["user"] = sub
+        content["code"] = code
 
         new_project = datastore.entity.Entity(key=client.key("projects"))
-        new_project.update({
-            "user": sub,
-            "project_name": project_name,
-            "code": code,
-            "project_description": project_instructions,
-            "data_collection_methods": data_collection_methods,
-            "observation_parameters": data_parameters,
-            "observation_list": [],
-        })
+        new_project.update(content)
 
         try:
             client.put(new_project)
-            return render_template('project.html', project_name=project_name, instructions=project_instructions)
+            return render_template('project.html', project_name=content["title"], instructions=content["description"])
         except Exception as e:
 
             return jsonify({"Error": "Not able to create new project"})
