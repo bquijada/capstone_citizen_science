@@ -6,21 +6,16 @@
     <h1>View Projects</h1>
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <h2>Your Projects</h2>
-        <ul class="list-group">
-
-            <!-- Update with database entity names -->
-            {% for project in user_projects %}
-            <li class="list-group-item">
-                <a href="{{ url_for('results', project_id=project.id) }}">{{ project.name }}</a>
-                <span>{{ project.status }}</span>
-            </li>
-            
-            {% endfor %}
-        </ul>
-    </div>
+<div class="display-projects">
+    <h1>My Projects</h1>
+    <ul>
+        {% for project in results %}
+        <li>
+            <div class="project-name">{{ project.project_name }}</div>
+            <div class="project-description">{{ project.project_description }}</div>
+        </li>
+        {% endfor %}
+    </ul>
 </div>
 
 {% endblock %}
