@@ -91,7 +91,7 @@ def projects_get_post():
         for e in results:
             e["id"] = e.key.id
 
-        # jsonify(results), 200
+        # return jsonify(results), 200
         return render_template('view_projects.html', results=results)
     else:
         return 'Method not recognized'
