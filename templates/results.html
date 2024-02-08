@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<div>
+    <h1>Results</h1>
+</div>
+
+<div class="display-observations">
+    <h1>Observations</h1></h1>
+    <table>
+        <thead>
+            <tr>
+            </tr>
+        </thead>
+        <tbody>
+            {% for observation in results %}
+            <tr>
+                <td>{{ observation.date }}</td>
+                <td>{{ observation.student_id }}</td>
+                <td>{{ observation.observation }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="button">
+  <button onclick="downloadCSV()">Download CSV File</button>
+</div>
+
+<script>
+  function downloadCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Date, Student ID, Observation\n";
+
+    {% for observation in results %}
+    csvContent += "{{ observation.date }},{{ observation.student_id }},{{ observation.observation }}\n";
+    {% endfor %}
+
+    let encodedURI = encodeURI(csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedURI);
+    link.setAttribute("download", "observation.csv");
+    document.body.appendChild(link);
+    link.click();
+  }
+</script>
+
+{% endblock %}
