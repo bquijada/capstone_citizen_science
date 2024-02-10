@@ -8,10 +8,10 @@ class InputItem {
 
 
 class Project {
-  constructor(title, description, observations) {
+  constructor(title, description, observation_types) {
     this.title = title
     this.description = description;
-    this.observations = observations; // list of InputItem objects
+    this.observation_types = observation_types; // list of InputItem objects
   }
 }
 
@@ -66,7 +66,10 @@ function createProject() {
 
     sendToDatabase('/projects', 'POST', newProject)
         .then(response => {
-            console.log('Project created successfully:', response);
+            code = response.code
+            title = response.title
+            description = response.description
+            return window.location.href = '/view_created_project' + '?' + 'code=' + code +'&' + 'title=' + title +'&' + 'description=' + description
         })
         .catch(error => {
             console.error('Error creating project:', error);

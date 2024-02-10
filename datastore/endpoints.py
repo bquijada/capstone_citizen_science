@@ -14,6 +14,10 @@ datastore_bp = Blueprint('datastore', __name__)
 
 
 def code_generator(size, chars):
+    """
+    Function generates random code with parameter size (length of code) and 
+    chars (string of characters to randomly select from).
+    """
     code = []
     for i in range(0, size):
         rand_char = random.choice(chars)
@@ -49,13 +53,14 @@ def projects_get_post():
         content = request.get_json()
         content["user"] = sub
         content["code"] = code
+        content["observations_list"] = []
 
         new_project = datastore.entity.Entity(key=client.key("projects"))
         new_project.update(content)
 
         try:
             client.put(new_project)
-            return render_template('project.html', project_name=content["title"], instructions=content["description"])
+            return content, 201
         except Exception as e:
 
             return jsonify({"Error": "Not able to create new project"})
@@ -102,8 +107,8 @@ def projects_get_code(code):
         return jsonify({"error": "Only POST and GET requests are allowed for this endpoint"}), 405
 
 
-@datastore_bp.route("/projects/<code>/observations", methods=["GET", "POST"])
-def observations_get_post(code):
+@datastore_bp.route("/projects/<code>/observations/<student_id>", methods=["GET", "POST"])
+def observations_get_post(code,student_id):
     """
     GET , POST Data
     """
@@ -117,19 +122,19 @@ def observations_get_post(code):
             "code": code,
             "time_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "observation": content["observation"],
-            "student_id": content["student_id"]
+            "student_id": student_id
         }
         new_observation.update(observation_content)
         client.put(new_observation)
-        new_data_id = str(new_observation.key.id)
-        observation_content["id"] = new_data_id
+        new_observation_id = str(new_observation.key.id)
+        observation_content["id"] = new_observation_id
 
         # Update Project entity with new data.
         query = client.query(kind="projects")
         query.add_filter("code", "=", code)
         results = list(query.fetch())
         project = results[0]
-        project["observation_list"].append(observation_content)
+        project["observations_list"].append(observation_content)
         client.put(project)
         return observation_content, 201
     elif request.method == 'GET':
@@ -137,6 +142,11 @@ def observations_get_post(code):
         # filter for projects created by user
         query = client.query(kind="observations")
         query.add_filter("code", "=", code)
+
+        # Add student_id filter if query parameter is present
+        if student_id:
+            query.add_filter("student_id", "=", student_id)
+            
         results = list(query.fetch())
 
         # append id to results
