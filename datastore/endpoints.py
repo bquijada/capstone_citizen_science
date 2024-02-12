@@ -14,6 +14,10 @@ datastore_bp = Blueprint('datastore', __name__)
 
 
 def code_generator(size, chars):
+    """
+    Function generates random code with parameter size (length of code) and 
+    chars (string of characters to randomly select from).
+    """
     code = []
     for i in range(0, size):
         rand_char = random.choice(chars)
@@ -49,16 +53,17 @@ def projects_get_post():
         content = request.get_json()
         content["user"] = sub
         content["code"] = code
+        content["observations_list"] = []
 
         new_project = datastore.entity.Entity(key=client.key("projects"))
         new_project.update(content)
 
         try:
             client.put(new_project)
-            return render_template('project.html', project_name=content["title"], instructions=content["description"])
+            return content, 201
         except Exception as e:
 
-            return jsonify({"Error": "Not able to create new project"})
+            return jsonify({"Error": "Not able to create new project"}), 400
 
     elif request.method == 'GET':
 
@@ -77,7 +82,7 @@ def projects_get_post():
 
         return jsonify(results), 200
     else:
-        return 'Method not recognized'
+        return 'Method not recognized', 405
 
 
 @datastore_bp.route("/projects/<code>", methods=["GET"])
@@ -85,6 +90,9 @@ def projects_get_code(code):
     """
     Get , Post a project
     """
+    # Convert code to all uppercase.
+    if code:
+        code = code.upper()
 
     if request.method == 'GET':
 
@@ -102,11 +110,15 @@ def projects_get_code(code):
         return jsonify({"error": "Only POST and GET requests are allowed for this endpoint"}), 405
 
 
-@datastore_bp.route("/projects/<code>/observations", methods=["GET", "POST"])
-def observations_get_post(code):
+@datastore_bp.route("/projects/<code>/observations/<student_id>", methods=["GET", "POST", "PUT"])
+def observations_get_post(code,student_id):
     """
-    GET , POST Data
+    GET , POST , PUT Data
     """
+    
+    # Convert code to all uppercase.
+    if code:
+        code = code.upper()
 
     if request.method == 'POST':
 
@@ -117,19 +129,19 @@ def observations_get_post(code):
             "code": code,
             "time_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "observation": content["observation"],
-            "student_id": content["student_id"]
+            "student_id": student_id
         }
         new_observation.update(observation_content)
         client.put(new_observation)
-        new_data_id = str(new_observation.key.id)
-        observation_content["id"] = new_data_id
+        new_observation_id = str(new_observation.key.id)
+        observation_content["id"] = new_observation_id
 
         # Update Project entity with new data.
         query = client.query(kind="projects")
         query.add_filter("code", "=", code)
         results = list(query.fetch())
         project = results[0]
-        project["observation_list"].append(observation_content)
+        project["observations_list"].append(observation_content)
         client.put(project)
         return observation_content, 201
     elif request.method == 'GET':
@@ -144,5 +156,54 @@ def observations_get_post(code):
             e["id"] = e.key.id
 
         return jsonify(results), 200
+    
+    elif request.method == 'PUT':
+        
+        # get json from request
+        content = request.get_json()
+        datastore_id = content["id"]
+
+        # obtain observation Key
+
+        observation_key = client.key("observations", int(datastore_id))
+        observation = client.get(key = observation_key)
+        
+        if observation == None:
+            return jsonify({"error": "Invalid datastore ID"}), 404
+        
+        # change contents from datastore
+        observation["observation"] = content["observation"]
+
+        # update datastore
+        client.put(observation)
+        
+        observation["id"] = datastore_id
+        return jsonify(observation), 200
     else:
-        return 'Method not recognized'
+        return jsonify({"error": "Only POST, PUT, and GET requests are allowed for this endpoint"}), 405
+    
+
+@datastore_bp.route("/projects/<code>/observations", methods=["GET"])
+def observations_get(code):
+    """
+    GET Data
+    """
+    # Convert code to all uppercase.
+    if code:
+        code = code.upper()
+
+    if request.method == 'GET':
+
+        # filter for projects created by user
+        query = client.query(kind="observations")
+        query.add_filter("code", "=", code)
+
+        results = list(query.fetch())
+
+        # append id to results
+        for e in results:
+            e["id"] = e.key.id
+
+        return jsonify(results), 200
+    else:
+        return jsonify({"error": "Only GET requests are allowed for this endpoint"}), 405

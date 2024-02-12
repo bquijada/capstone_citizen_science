@@ -22,5 +22,5 @@ app.register_blueprint(datastore_bp, url_prefix='/')
 if __name__ == '__main__':
 
     """host='127.0.0.1', port=8080, debug=True"""
-    app.run()
+    app.run(debug=True)
 

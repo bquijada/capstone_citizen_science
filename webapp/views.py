@@ -2,7 +2,7 @@ from urllib.parse import quote_plus, urlencode
 from auth.decorators import requires_auth
 from flask import Blueprint, redirect, session, url_for, current_app
 from authlib.integrations.flask_client import OAuth
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 webapp_bp = Blueprint('webapp', __name__)
 
@@ -29,3 +29,10 @@ def profile():
     session.get('user').get("access_token")
 
     return data
+
+@webapp_bp.route("/view_created_project")
+def create_project():
+    _title = request.args.get('title')
+    _code = request.args.get('code')
+    _description = request.args.get('code')
+    return render_template('project.html', title =_title, description = _description, code = _code)
