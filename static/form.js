@@ -48,13 +48,28 @@ function onDropdownChange() {
         <label for="options${observationMethodCount}">${selectedObservationType} Options (must be comma-separated):</label>
         <input type="text" id="options${observationMethodCount}" ${selectedObservationType !== 'Dropdown' &&
         selectedObservationType !== 'Checkbox' ? 'disabled' : ''}>
-        <button type="button" onclick="addObservationMethod(${observationMethodCount}, '${selectedObservationType}'); this.disabled = true;">Add Observation Method</button>
+        <button type="button" onclick="handleButtonClick(${observationMethodCount}, '${selectedObservationType}', this);">Add Observation Method</button>
         <hr>
     `;
     // update the dom with new div
     const observationMethodsContainer = document.getElementById('observationMethods');
     observationMethodsContainer.appendChild(observationMethodDiv);
 }
+
+// Function to handle button click
+function handleButtonClick(count, observationType, button) {
+    if (observationMethodCount === 5) {
+        alert("Warning: You already have 5 observation methods. Cannot add more. Please remove one or submit project.");
+        return;
+    }
+
+    // Call the original addObservationMethod function
+    addObservationMethod(count, observationType);
+
+    // Disable the button after calling the function
+    button.disabled = true;
+}
+
 
 // Finalizes project by sending title, description, and list of observations to datastore
 function createProject() {
