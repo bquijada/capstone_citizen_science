@@ -63,7 +63,7 @@ def projects_get_post():
             return content, 201
         except Exception as e:
 
-            return jsonify({"Error": "Not able to create new project"})
+            return jsonify({"Error": "Not able to create new project"}), 400
 
     elif request.method == 'GET':
 
@@ -82,7 +82,7 @@ def projects_get_post():
 
         return jsonify(results), 200
     else:
-        return 'Method not recognized'
+        return 'Method not recognized', 405
 
 
 @datastore_bp.route("/projects/<code>", methods=["GET"])
@@ -90,6 +90,9 @@ def projects_get_code(code):
     """
     Get , Post a project
     """
+    # Convert code to all uppercase.
+    if code:
+        code = code.upper()
 
     if request.method == 'GET':
 
@@ -107,11 +110,15 @@ def projects_get_code(code):
         return jsonify({"error": "Only POST and GET requests are allowed for this endpoint"}), 405
 
 
-@datastore_bp.route("/projects/<code>/observations/<student_id>", methods=["GET", "POST"])
+@datastore_bp.route("/projects/<code>/observations/<student_id>", methods=["GET", "POST", "PUT"])
 def observations_get_post(code,student_id):
     """
-    GET , POST Data
+    GET , POST , PUT Data
     """
+    
+    # Convert code to all uppercase.
+    if code:
+        code = code.upper()
 
     if request.method == 'POST':
 
@@ -142,11 +149,55 @@ def observations_get_post(code,student_id):
         # filter for projects created by user
         query = client.query(kind="observations")
         query.add_filter("code", "=", code)
+        results = list(query.fetch())
 
-        # Add student_id filter if query parameter is present
-        if student_id:
-            query.add_filter("student_id", "=", student_id)
-            
+        # append id to results
+        for e in results:
+            e["id"] = e.key.id
+
+        return jsonify(results), 200
+    
+    elif request.method == 'PUT':
+        
+        # get json from request
+        content = request.get_json()
+        datastore_id = content["id"]
+
+        # obtain observation Key
+
+        observation_key = client.key("observations", int(datastore_id))
+        observation = client.get(key = observation_key)
+        
+        if observation == None:
+            return jsonify({"error": "Invalid datastore ID"}), 404
+        
+        # change contents from datastore
+        observation["observation"] = content["observation"]
+
+        # update datastore
+        client.put(observation)
+        
+        observation["id"] = datastore_id
+        return jsonify(observation), 200
+    else:
+        return jsonify({"error": "Only POST, PUT, and GET requests are allowed for this endpoint"}), 405
+    
+
+@datastore_bp.route("/projects/<code>/observations", methods=["GET"])
+def observations_get(code):
+    """
+    GET Data
+    """
+    # Convert code to all uppercase.
+    if code:
+        code = code.upper()
+
+    if request.method == 'GET':
+
+        # filter for projects created by user
+        query = client.query(kind="observations")
+        query.add_filter("code", "=", code)
+
         results = list(query.fetch())
 
         # append id to results
@@ -155,4 +206,4 @@ def observations_get_post(code,student_id):
 
         return jsonify(results), 200
     else:
-        return 'Method not recognized'
+        return jsonify({"error": "Only GET requests are allowed for this endpoint"}), 405

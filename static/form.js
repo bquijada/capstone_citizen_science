@@ -1,17 +1,17 @@
 class InputItem {
-  constructor(type, prompt, options = null) {
+  constructor(observation_type, prompt, options = null) {
     this.prompt = prompt
-    this.type = type; // 'Text', 'Dropdown', 'Checkbox', 'Numerical'
+    this.observation_type = observation_type; // 'Text', 'Dropdown', 'Checkbox', 'Numerical'
     this.options = options; // Used for 'dropdown' and 'checkbox' types
   }
 }
 
 
 class Project {
-  constructor(title, description, observation_types) {
+  constructor(title, description, parameters) {
     this.title = title
     this.description = description;
-    this.observation_types = observation_types; // list of InputItem objects
+    this.parameters = parameters; // list of InputItem objects
   }
 }
 
@@ -19,12 +19,12 @@ let observationMethodCount = 0;
 let observation_methods = []
 
 // Adds observation method to a global list of observation methods
-function addObservationMethod(index, methodName) {
+function addObservationMethod(index, observation_type) {
     const promptInput = document.getElementById(`prompt${index}`);
     const optionsInput = document.getElementById(`options${index}`);
-    let options = methodName === 'Dropdown' || methodName === 'Checkbox' ? optionsInput.value.split(',').map(option => option.trim()) : null
+    let options = observation_type === 'Dropdown' || observation_type === 'Checkbox' ? optionsInput.value.split(',').map(option => option.trim()) : null
 
-    let methodItem = new InputItem(methodName, promptInput.value, options);
+    let methodItem = new InputItem(observation_type, promptInput.value, options);
     observation_methods.push(methodItem)
 
     observationMethodCount++;
@@ -37,18 +37,18 @@ function addObservationMethod(index, methodName) {
 
 // Event listener for selecting an observation method value from dropdown menu
 function onDropdownChange() {
-    const methodNameDropdown = document.getElementById('methodName');
-    const selectedMethodName = methodNameDropdown.value;
+    const observationTypeDropdown = document.getElementById('observationType');
+    const selectedObservationType = observationTypeDropdown.value;
 
     const observationMethodDiv = document.createElement('div');
     observationMethodDiv.innerHTML = `
-        <label for="prompt${observationMethodCount}">${selectedMethodName} Prompt:</label>
+        <label for="prompt${observationMethodCount}">${selectedObservationType} Prompt:</label>
         <input type="text" id="prompt${observationMethodCount}" required>
 
-        <label for="options${observationMethodCount}">${selectedMethodName} Options (must be comma-separated):</label>
-        <input type="text" id="options${observationMethodCount}" ${selectedMethodName !== 'Dropdown' &&
-        selectedMethodName !== 'Checkbox' ? 'disabled' : ''}>
-        <button type="button" onclick="addObservationMethod(${observationMethodCount}, '${selectedMethodName}'); this.disabled = true;">Add Observation Method</button>
+        <label for="options${observationMethodCount}">${selectedObservationType} Options (must be comma-separated):</label>
+        <input type="text" id="options${observationMethodCount}" ${selectedObservationType !== 'Dropdown' &&
+        selectedObservationType !== 'Checkbox' ? 'disabled' : ''}>
+        <button type="button" onclick="addObservationMethod(${observationMethodCount}, '${selectedObservationType}'); this.disabled = true;">Add Observation Method</button>
         <hr>
     `;
     // update the dom with new div
@@ -101,5 +101,5 @@ function sendToDatabase(url, method, payload) {
     });
 }
 
-document.getElementById('methodName').addEventListener('change', onDropdownChange);
+document.getElementById('observationType').addEventListener('change', onDropdownChange);
 
