@@ -3,6 +3,7 @@ class InputItem {
     this.prompt = prompt
     this.observation_type = observation_type; // 'Text', 'Dropdown', 'Checkbox', 'Numerical'
     this.options = options; // Used for 'dropdown' and 'checkbox' types
+    this.id = null; // Unique identifier
   }
 }
 
@@ -17,6 +18,7 @@ class Project {
 
 let observationMethodCount = 0;
 let observation_methods = []
+let observationMethodCounter = 0;
 
 // Adds observation method to a global list of observation methods
 function addObservationMethod(index, observation_type) {
@@ -25,9 +27,21 @@ function addObservationMethod(index, observation_type) {
     let options = observation_type === 'Dropdown' || observation_type === 'Checkbox' ? optionsInput.value.split(',').map(option => option.trim()) : null
 
     let methodItem = new InputItem(observation_type, promptInput.value, options);
+    methodItem.id = observationMethodCount++;
+
     observation_methods.push(methodItem)
 
     observationMethodCount++;
+
+    // Create the observation method div (for delete button)
+    const observationMethodDiv = document.createElement('div');
+    observationMethodDiv.innerHTML = `
+        <button type="button" onclick="deleteObservationMethod(${methodItem.id}, this);">Delete Method</button>
+        <hr>
+    `;
+    // update dom
+    const observationMethodsContainer = document.getElementById('observationMethods');
+    observationMethodsContainer.appendChild(observationMethodDiv);
 
     // Clear input fields
     promptInput.value = '';
@@ -49,7 +63,6 @@ function onDropdownChange() {
         <input type="text" id="options${observationMethodCount}" ${selectedObservationType !== 'Dropdown' &&
         selectedObservationType !== 'Checkbox' ? 'disabled' : ''}>
         <button type="button" onclick="handleButtonClick(${observationMethodCount}, '${selectedObservationType}', this);">Add Observation Method</button>
-        <hr>
     `;
     // update the dom with new div
     const observationMethodsContainer = document.getElementById('observationMethods');
@@ -68,6 +81,20 @@ function handleButtonClick(count, observationType, button) {
 
     // Disable the button after calling the function
     button.disabled = true;
+}
+
+// Delete observation method
+function deleteObservationMethod(id, button) {
+    // Remove the observation method with the specified id
+    console.log('Before filtering:', observation_methods);
+
+    observation_methods = observation_methods.filter(item => item.id !== id);
+
+    console.log('After filtering:', observation_methods);
+
+    button.disabled = true;
+
+    observationMethodCount--;
 }
 
 
