@@ -3,7 +3,6 @@ class InputItem {
     this.prompt = prompt
     this.observation_type = observation_type; // 'Text', 'Dropdown', 'Checkbox', 'Numerical'
     this.options = options; // Used for 'dropdown' and 'checkbox' types
-    this.id = null; // Unique identifier
   }
 }
 
@@ -16,95 +15,83 @@ class Project {
   }
 }
 
-let observationMethodCount = 0;
-let observation_methods = []
-let observationMethodCounter = 0;
 
-// Adds observation method to a global list of observation methods
-function addObservationMethod(index, observation_type) {
-    const promptInput = document.getElementById(`prompt${index}`);
-    const optionsInput = document.getElementById(`options${index}`);
-    let options = observation_type === 'Dropdown' || observation_type === 'Checkbox' ? optionsInput.value.split(',').map(option => option.trim()) : null
+const addBtn = document.querySelector(".add");
+const input = document.querySelector(".inp-group");
 
-    let methodItem = new InputItem(observation_type, promptInput.value, options);
-    methodItem.id = observationMethodCount++;
-
-    observation_methods.push(methodItem)
-
-    observationMethodCount++;
-
-    // Create the observation method div (for delete button)
-    const observationMethodDiv = document.createElement('div');
-    observationMethodDiv.innerHTML = `
-        <button type="button" onclick="deleteObservationMethod(${methodItem.id}, this);">Delete Method</button>
-        <hr>
-    `;
-    // update dom
-    const observationMethodsContainer = document.getElementById('observationMethods');
-    observationMethodsContainer.appendChild(observationMethodDiv);
-
-    // Clear input fields
-    promptInput.value = '';
-    optionsInput.value = '';
-
+function removeInput(){
+    this.parentElement.remove();
 }
 
-// Event listener for selecting an observation method value from dropdown menu
-function onDropdownChange() {
-    const observationTypeDropdown = document.getElementById('observationType');
-    const selectedObservationType = observationTypeDropdown.value;
+// Adds an observation method input form
+function addInput(){
+    const observationMethodTypeSelect = document.getElementById("observationMethodType");
+    const observationMethodType = observationMethodTypeSelect.value;
 
-    const observationMethodDiv = document.createElement('div');
-    observationMethodDiv.innerHTML = `
-        <label for="prompt${observationMethodCount}">${selectedObservationType} Prompt:</label>
-        <input type="text" id="prompt${observationMethodCount}" required>
-
-        <label for="options${observationMethodCount}">${selectedObservationType} Options (must be comma-separated):</label>
-        <input type="text" id="options${observationMethodCount}" ${selectedObservationType !== 'Dropdown' &&
-        selectedObservationType !== 'Checkbox' ? 'disabled' : ''}>
-        <button type="button" onclick="handleButtonClick(${observationMethodCount}, '${selectedObservationType}', this);">Add Observation Method</button>
-    `;
-    // update the dom with new div
-    const observationMethodsContainer = document.getElementById('observationMethods');
-    observationMethodsContainer.appendChild(observationMethodDiv);
-}
-
-// Function to handle button click
-function handleButtonClick(count, observationType, button) {
-    if (observationMethodCount === 5) {
-        alert("Warning: You already have 5 observation methods. Cannot add more. Please remove one or submit project.");
+    if (observationMethodType === "") {
+        alert("Please select a method type to add!");
         return;
     }
 
-    // Call the original addObservationMethod function
-    addObservationMethod(count, observationType);
+    const prompt = document.createElement("input");
+    prompt.type = "text";
+    prompt.placeholder = `Enter ${observationMethodType} Prompt`;
 
-    // Disable the button after calling the function
-    button.disabled = true;
+    const options = document.createElement("input");
+    options.type = "text";
+    options.placeholder= "Enter Options (comma separated)";
+
+    if (observationMethodType === "Numerical") {
+        options.disabled = true;
+        options.placeholder= "No options for numerical entry";
+    }
+
+
+    const btn = document.createElement("a");
+    btn.className = "delete";
+    btn.innerHTML = "&times";
+
+    btn.addEventListener("click", removeInput);
+
+    const flex = document.createElement("div");
+    flex.className = "flex";
+    flex.dataset.observationType = observationMethodType;
+
+    input.appendChild(flex);
+    flex.appendChild(prompt);
+    flex.appendChild(options);
+    flex.appendChild(btn);
+
 }
 
-// Delete observation method
-function deleteObservationMethod(id, button) {
-    // Remove the observation method with the specified id
-    console.log('Before filtering:', observation_methods);
+addBtn.addEventListener("click", addInput);
 
-    observation_methods = observation_methods.filter(item => item.id !== id);
+// Creates new project and sets it to the database
+function createProject(){
+    // Gather observation methods
+    const flexDivs = document.querySelectorAll(".flex");
+    const numberOfFlexDivs = flexDivs.length;
+    if (numberOfFlexDivs === 0) {
+        alert("Please add at least one observation method!");
+        return;
+    }
+    const inputItems = [];
+    flexDivs.forEach((flexDiv, index) => {
+        const promptInput = flexDiv.querySelector("input[type='text']:first-child");
+        const optionsInput = flexDiv.querySelector("input[type='text']:nth-child(2)");
 
-    console.log('After filtering:', observation_methods);
+        const observationType = flexDiv.dataset.observationType;
+        const prompt = promptInput.value;
+        const options = optionsInput ? optionsInput.value.split(',').map(option => option.trim()) : null;
 
-    button.disabled = true;
+        const inputItem = new InputItem(observationType, prompt, options);
 
-    observationMethodCount--;
-}
-
-
-// Finalizes project by sending title, description, and list of observations to datastore
-function createProject() {
-    const projectTitle = document.getElementById('projectTitle').value;
-    const projectDescription = document.getElementById('projectDescription').value;
-
-
-    let newProject = new Project(projectTitle, projectDescription, observation_methods);
+        inputItems.push(inputItem);
+    });
+    // Create new project
+    const projectTitle = document.getElementById("projectName").value;
+    const projectDescription = document.getElementById("projectDescription").value;
+    let newProject = new Project(projectTitle, projectDescription, inputItems);
 
     sendToDatabase('/projects', 'POST', newProject)
         .then(response => {
@@ -116,9 +103,9 @@ function createProject() {
         .catch(error => {
             console.error('Error creating project:', error);
         });
-}
+ }
 
-// POST to datastore
+ // POST to datastore
 function sendToDatabase(url, method, payload) {
     return new Promise((resolve, reject) => {
         fetch(url, {
@@ -142,6 +129,3 @@ function sendToDatabase(url, method, payload) {
         });
     });
 }
-
-document.getElementById('observationType').addEventListener('change', onDropdownChange);
-

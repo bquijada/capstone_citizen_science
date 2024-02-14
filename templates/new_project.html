@@ -3,34 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create A New Project</title>
-    <link rel="stylesheet" href="static\styles.css">
+    <link rel="stylesheet" href="static/styles.css">
+    <title>Create New Project</title>
 </head>
 <body>
-    <div id="app">
-        <h1>Create New Project</h1>
-        <form id="projectForm">
-            <label for="projectTitle">Title:</label>
-            <input type="text" id="projectTitle" required>
-            
-            <label for="projectDescription">Description:</label>
-            <textarea id="projectDescription" required></textarea>
-            
-            <div id="observationMethods">
-                <h2>Choose Observation Methods</h2>
-                <label for="observationType">Add A Method Type (Up to 5):</label>
-                <select id="observationType">
-                    <option value="" disabled selected>Select Method</option>
-                    <option value="Dropdown">Dropdown Menu</option>
-                    <option value="Checkbox">Checkbox List</option>
-                    <option value="Numerical">Numerical Value</option>
-                </select>
-            </div>
-            
-            <button type="button" onclick="createProject(); this.disabled = true;">Create Project</button>
-        </form>
+    <div class="new-project">
+        <h2 class="inp-proj">Create New Science Project</h2>
+        <input class="inp-proj" type="text" id="projectName" placeholder="Enter Project Name">
+        <textarea class="proj-des" id="projectDescription" placeholder=" Enter Project Description"></textarea>
+    </div>
+    <div class="container">
+        <div class="wrap">
+            <h2>Add Observation Methods</h2>
+            <select id="observationMethodType">
+                <option value="" disabled selected>Select Method</option>
+                <option value="Dropdown">Dropdown Menu</option>
+                <option value="Checkbox">Checkbox List</option>
+                <option value="Numerical">Numerical Entry</option>
+            </select>
+            <a href="#" class="add">&plus;</a>
+        </div>
+        <div class="inp-group">
+
+        </div>
+    </div>
+    <div class="btn-div">
+        <button class="btn" type="button" onclick="createProject();">Create Project</button>
     </div>
 
-    <script src="static\form.js"></script>
+    <script src="static/form.js"></script>
 </body>
 </html>
+
