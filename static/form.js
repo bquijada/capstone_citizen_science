@@ -75,6 +75,10 @@ function createProject(){
         alert("Please add at least one observation method!");
         return;
     }
+    if (numberOfFlexDivs > 5) {
+        alert("Observation method limit is 5. Please remove surplus methods to proceed.");
+        return;
+    }
     const inputItems = [];
     flexDivs.forEach((flexDiv, index) => {
         const promptInput = flexDiv.querySelector("input[type='text']:first-child");
