@@ -150,7 +150,6 @@ def observations_get_post(code,student_id):
         query = client.query(kind="observations")
         query.add_filter("code", "=", code)
         results = list(query.fetch())
-
         # append id to results
         for e in results:
             e["id"] = e.key.id
@@ -207,3 +206,36 @@ def observations_get(code):
         return jsonify(results), 200
     else:
         return jsonify({"error": "Only GET requests are allowed for this endpoint"}), 405
+    
+##################################################################################################
+@datastore_bp.route("/projects", methods=["DELETE"])
+def observations_delete():
+    """
+    For Postman use only, DELETE Data
+    """
+    userinfo = session.get('user').get("userinfo")
+    user = userinfo.get("sub")
+
+    if request.method == 'DELETE':
+
+        # filter for projects created by user
+        
+        query = client.query(kind="projects")
+        query.add_filter("user", "=", user)
+
+        results = list(query.fetch())
+
+        # append id to results
+        for e in results:
+            if len(e["observations_list"]) > 0:
+                observations_list = e["observations_list"]
+                for observation in observations_list:
+                    observation_id = observation["id"]
+                    observation_key = client.key("observations", int(observation_id))
+                    observation = client.get(key = observation_key)
+                    client.delete(observation)
+            project_key = e.key
+            project = client.get(project_key)
+            client.delete(project)
+
+        return "Deleted", 200
