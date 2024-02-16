@@ -33,6 +33,9 @@ def projects_get_post():
     userinfo = session.get('user').get("userinfo")
     user = userinfo.get("sub")
 
+    if user == None:
+        return redirect('/login',code = 302)
+
     if request.method == 'POST':
         code = code_generator(5, string.ascii_uppercase + string.digits)
 
