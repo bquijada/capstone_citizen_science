@@ -92,11 +92,21 @@ def signup():
 
 @auth_bp.route("/create_new_project")
 def create_new_project():
+    try:
+        userinfo = session.get('user').get("userinfo")
+        user = userinfo.get("sub")
+    except:
+        return redirect('/login',code = 302)
     return render_template('new_project.html')
 
 
 @auth_bp.route("/view_projects")
 def view_projects():
+    try:
+        userinfo = session.get('user').get("userinfo")
+        user = userinfo.get("sub")
+    except:
+        return redirect('/login',code = 302)
     return render_template('view_projects.html')
 
 
