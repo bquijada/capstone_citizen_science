@@ -149,6 +149,10 @@ def observations_get_post(code,student_id):
         # filter for projects created by user
         query = client.query(kind="observations")
         query.add_filter("code", "=", code)
+        
+        # add student_id filter
+        query.add_filter("student_id", "=", student_id)
+
         results = list(query.fetch())
         # append id to results
         for e in results:
