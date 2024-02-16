@@ -30,10 +30,10 @@ def projects_get_post():
     """
     Get , Post a project
     """
-    userinfo = session.get('user').get("userinfo")
-    user = userinfo.get("sub")
-
-    if user == None:
+    try:
+        userinfo = session.get('user').get("userinfo")
+        user = userinfo.get("sub")
+    except:
         return redirect('/login',code = 302)
 
     if request.method == 'POST':
