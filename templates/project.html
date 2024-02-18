@@ -7,7 +7,8 @@
     <h1>code: {{ code }}</h1>
         <p>{{ description }} </p>
         
-        <a href="{{ url_for('auth.create_new_project') }}">Go Back</a>
+        <a href="{{ url_for('auth.create_new_project') }}">Create Another Project</a>
+        <a href="{{ url_for('auth.results_page') }}"> Project Results</a>
 </div>
 
 {% endblock %}

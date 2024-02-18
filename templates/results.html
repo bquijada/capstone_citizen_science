@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<div>
+    {% for p in project %}
+        <h1>Results for Project {{ p.code }}: {{ p.title }}</h1>
+        <p>{{ p.description }}</p>
+        <h2>Resulting Data:</h2>
+        <p> {{p.observations_list}}</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

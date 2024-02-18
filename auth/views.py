@@ -6,15 +6,14 @@ from flask import Flask, render_template
 import os
 from google.cloud import datastore
 import requests
-
+current_sub = None
 client = datastore.Client()
 auth_bp = Blueprint('auth', __name__)
-
 oauth = OAuth(current_app)
 CLIENT_ID = "xm0b7wYkKdz7dtc0XsecmO8z5BPCMFrf"
 CLIENT_SECRET = "33rY21_EpoVNkXSyky5hoR0UFjrpq8feQUz9Nt6J6xUto5kOcol2LOVUhklAQvzn"
 DOMAIN = "leungp.us.auth0.com"
-
+PROJECT_URL = "https://capstone-citizen-science.wl.r.appspot.com"
 oauth.register(
     'auth0',
     client_id=CLIENT_ID,
@@ -45,6 +44,9 @@ def callback():
     if response.status_code == 200:
         user_info = response.json()
         user_id = user_info.get('sub')  # 'sub' is the user ID in Auth0
+        global current_sub
+        current_sub = user_id
+        print("CHECK HERE" + user_id)
         user_name = user_info.get('name')
         user_email = user_info.get('email')
     else:
@@ -97,9 +99,35 @@ def create_new_project():
 
 @auth_bp.route("/view_projects")
 def view_projects():
-    return render_template('view_projects.html')
+    url = PROJECT_URL + "/users/projects/" + current_sub
+
+    # Make a GET request
+    response = requests.get(url)
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        projects = response.json()  # Assuming the response is in JSON format
+        print("Projects:", projects)
+        return render_template('view_projects.html', projects=projects)
+    else:
+        print(f"Error IS HERE: {response.status_code}, {response.text}")
+        return f"Error IS HERE: {response.status_code}, {response.text}"
 
 
 @auth_bp.route("/create_project")
 def create_project():
     return render_template('project.html')
+
+
+@auth_bp.route("/results/<code>")
+def view_results(code):
+    url = PROJECT_URL + "/projects/" + code
+    print("CODE: " + code)
+    # Make a GET request
+    response = requests.get(url)
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        project = response.json()  # Assuming the response is in JSON format
+        print("Project:", project)
+        return render_template('results.html', project=project)
+    return render_template('results.html')
+
