@@ -212,7 +212,7 @@ def get_all_projects(user_id):
 @datastore_bp.route("/projects/<code>/observations", methods=["GET"])
 def observations_get(code):
     """
-    GET all observations
+    GET all observations for a project
     """
     # Convert code to all uppercase.
     if code:

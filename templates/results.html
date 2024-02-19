@@ -9,6 +9,7 @@
         <h2>Resulting Data:</h2>
         <p> {{p.observations_list}}</p>
     {% endfor %}
+    <p><a href="{{ url_for('auth.create_new_project') }}">Create Another Project</a></p>
 </div>
 
 {% endblock %}
