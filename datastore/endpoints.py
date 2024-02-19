@@ -139,8 +139,19 @@ def observations_get_post(code,student_id):
                 for param in parameters:
                     if param["prompt"] == obs["prompt"]:
                         if selected_dropdown not in param["options"]:
-                            return  jsonify({"error": "Selected dropdown is not part of project"}), 400
-   
+                            return  jsonify({"error": "Selected dropdown is not an option"}), 400
+
+            # Validate checklist entry
+            if obs["observation_type"] == "Checklist":
+                selected_checklist = obs["value"]
+                query = client.query(kind="projects")
+                query.add_filter("code", "=", code)
+                result = list(query.fetch())
+                parameters = result[0]['parameters']
+                for param in parameters:
+                    if param["prompt"] == obs["prompt"]:
+                        if selected_checklist not in param["options"]:
+                            return  jsonify({"error": "Selected checklist option is not an option"}), 400  
 
         observation_content = {
             "code": code,
