@@ -1,6 +1,6 @@
 from authlib.integrations.flask_client import OAuth
 from auth.decorators import requires_auth
-from flask import Flask, render_template, request, Blueprint, redirect, session, url_for, current_app, jsonify
+from flask import Flask, render_template, request, Blueprint, redirect, session, url_for, current_app, jsonify, flash
 import os
 from google.cloud import datastore
 import requests
@@ -122,6 +122,11 @@ def observations_get_post(code,student_id):
         # Add new observation entity
         content = request.get_json()
         new_observation = datastore.entity.Entity(key=client.key("observations"))
+        for obs in content["observation"]:
+            #Data entry validation of int
+            if obs["observation_type"] == "Numerical":
+                if type(obs["value"]) != int:
+                    return  jsonify({"error": "Numerical entry is not integer type"}), 400
         observation_content = {
             "code": code,
             "time_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
