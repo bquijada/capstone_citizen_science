@@ -51,10 +51,8 @@ def projects_get_post():
                 result = list(query.fetch())
 
         # Access form data using request.form (because form content-type is not json)
-        userinfo = session.get('user').get("userinfo")
-        sub = userinfo.get("sub")
         content = request.get_json()
-        content["user"] = sub
+        content["user"] = user
         content["code"] = code
         content["observations_list"] = []
 
@@ -69,10 +67,6 @@ def projects_get_post():
             return jsonify({"Error": "Not able to create new project"}), 400
 
     elif request.method == 'GET':
-
-        # obtain sub of logged in user
-        userinfo = session.get('user').get("userinfo")
-        user = userinfo.get("sub")
 
         # filter for projects created by user
         query = client.query(kind="projects")
