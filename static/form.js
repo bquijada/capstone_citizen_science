@@ -80,7 +80,7 @@ function createProject(){
         return;
     }
     const inputItems = [];
-    var optionExit = false
+    var optionExit = false // optionExit variable required to stop after .forEach() function
     flexDivs.forEach((flexDiv, index) => {
         const promptInput = flexDiv.querySelector("input[type='text']:first-child");
         const optionsInput = flexDiv.querySelector("input[type='text']:nth-child(2)");
@@ -100,6 +100,11 @@ function createProject(){
             optionExit = true;
             return
         }
+        
+        if (observationType == "Numerical"){
+            inputItem.options = []
+        }
+        
         inputItems.push(inputItem);
     });
 
