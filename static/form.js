@@ -80,6 +80,7 @@ function createProject(){
         return;
     }
     const inputItems = [];
+    var optionExit = false
     flexDivs.forEach((flexDiv, index) => {
         const promptInput = flexDiv.querySelector("input[type='text']:first-child");
         const optionsInput = flexDiv.querySelector("input[type='text']:nth-child(2)");
@@ -90,8 +91,21 @@ function createProject(){
 
         const inputItem = new InputItem(observationType, prompt, options);
 
+        // Check if options is empty.
+        optionsLength = inputItem.options.length
+        // Empty options returns optionsLength == 1. Check first item in options
+        firstItemLength = inputItem.options[0].length
+        if (optionsLength == 1 && firstItemLength == 0 && observationType != "Numerical"){
+            alert(`At least one option is required for \nType: ${observationType} \nPrompt: ${prompt}`);
+            optionExit = true;
+            return
+        }
         inputItems.push(inputItem);
     });
+
+    if (optionExit == true){
+        return
+    }
     // Create new project
     const projectTitle = document.getElementById("projectName").value;
     const projectDescription = document.getElementById("projectDescription").value;
