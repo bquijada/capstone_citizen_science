@@ -122,11 +122,26 @@ def observations_get_post(code,student_id):
         # Add new observation entity
         content = request.get_json()
         new_observation = datastore.entity.Entity(key=client.key("observations"))
+        # Validate data entry
         for obs in content["observation"]:
-            #Data entry validation of int
+            # Data entry validation of int
             if obs["observation_type"] == "Numerical":
                 if type(obs["value"]) != int:
                     return  jsonify({"error": "Numerical entry is not integer type"}), 400
+                
+            # Validate dropdown entry
+            if obs["observation_type"] == "Dropdown":
+                selected_dropdown = obs["value"]
+                query = client.query(kind="projects")
+                query.add_filter("code", "=", code)
+                result = list(query.fetch())
+                parameters = result[0]['parameters']
+                for param in parameters:
+                    if param["prompt"] == obs["prompt"]:
+                        if selected_dropdown not in param["options"]:
+                            return  jsonify({"error": "Selected dropdown is not part of project"}), 400
+   
+
         observation_content = {
             "code": code,
             "time_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
