@@ -122,14 +122,24 @@ def observations_get_post(code,student_id):
         # Add new observation entity
         content = request.get_json()
         new_observation = datastore.entity.Entity(key=client.key("observations"))
+
+        # Get project for data validation
+        query = client.query(kind="projects")
+        query.add_filter("code", "=", code)
+        result = list(query.fetch())
+        parameters = result[0]['parameters']
+        project_prompt = []
+        for param in parameters:
+            project_prompt.append(param["prompt"])
+
         # Validate data entry
         for obs in content["observation"]:
             # Validate numerical entry
             if obs["observation_type"] == "Numerical":
 
                 # Validate prompt
-                if obs["prompt"] not in param["prompt"]:
-                        return jsonify({"error": "Numerical prompt (" + obs["prompt"] + ") not part of project"}), 400
+                if obs["prompt"] not in project_prompt:
+                        return jsonify({"error": "Numerical prompt (" + obs["prompt"] + ") is not part of project"}), 400
                 
                 # Validate value
                 if type(obs["value"]) != int:
@@ -138,14 +148,10 @@ def observations_get_post(code,student_id):
             # Validate dropdown entry
             if obs["observation_type"] == "Dropdown":
                 selected_dropdown = obs["value"]
-                query = client.query(kind="projects")
-                query.add_filter("code", "=", code)
-                result = list(query.fetch())
-                parameters = result[0]['parameters']
                 for param in parameters:
                     # Validate prompt
-                    if obs["prompt"] not in param["prompt"]:
-                        return jsonify({"error": "Dropdown prompt (" + obs["prompt"] + ") not part of project"}), 400
+                    if obs["prompt"] not in project_prompt:
+                        return jsonify({"error": "Dropdown prompt (" + obs["prompt"] + ") is not part of project"}), 400
                     
                     # Validate value
                     if param["prompt"] == obs["prompt"]:
@@ -155,14 +161,10 @@ def observations_get_post(code,student_id):
             # Validate checklist entry
             if obs["observation_type"] == "Checklist":
                 selected_checklist = obs["value"]
-                query = client.query(kind="projects")
-                query.add_filter("code", "=", code)
-                result = list(query.fetch())
-                parameters = result[0]['parameters']
                 for param in parameters:
                     # Validate Prompt
                     if obs["prompt"] not in param["prompt"]:
-                        return jsonify({"error": "Checklist prompt (" + obs["prompt"] + ") not part of project"}), 400
+                        return jsonify({"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
                     
                     # Validate value
                     if param["prompt"] == obs["prompt"]:
