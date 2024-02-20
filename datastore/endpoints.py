@@ -56,6 +56,16 @@ def projects_get_post():
         content["code"] = code
         content["observations_list"] = []
 
+        for param in content["parameters"]:
+
+            if param["observation_type"] == "Dropdown":
+                if (len(param["options"])  == 1) & (param["options"][0] == ''):
+                    return jsonify({"error": "Options for Dropdown required"}), 400
+
+            if param["observation_type"] == "Checklist":
+                if (len(param["options"])  == 1) & (param["options"][0] == ''):
+                    return jsonify({"error": "Options for Checklist required"}), 400
+
         new_project = datastore.entity.Entity(key=client.key("projects"))
         new_project.update(content)
 
