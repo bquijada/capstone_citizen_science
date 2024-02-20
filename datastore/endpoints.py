@@ -124,8 +124,14 @@ def observations_get_post(code,student_id):
         new_observation = datastore.entity.Entity(key=client.key("observations"))
         # Validate data entry
         for obs in content["observation"]:
-            # Data entry validation of int
+            # Validate numerical entry
             if obs["observation_type"] == "Numerical":
+
+                # Validate prompt
+                if obs["prompt"] not in param["prompt"]:
+                        return jsonify({"error": "Numerical prompt (" + obs["prompt"] + ") not part of project"}), 400
+                
+                # Validate value
                 if type(obs["value"]) != int:
                     return  jsonify({"error": "Numerical entry is not integer type"}), 400
                 
@@ -137,6 +143,11 @@ def observations_get_post(code,student_id):
                 result = list(query.fetch())
                 parameters = result[0]['parameters']
                 for param in parameters:
+                    # Validate prompt
+                    if obs["prompt"] not in param["prompt"]:
+                        return jsonify({"error": "Dropdown prompt (" + obs["prompt"] + ") not part of project"}), 400
+                    
+                    # Validate value
                     if param["prompt"] == obs["prompt"]:
                         if selected_dropdown not in param["options"]:
                             return  jsonify({"error": "Selected dropdown is not an option"}), 400
@@ -149,6 +160,11 @@ def observations_get_post(code,student_id):
                 result = list(query.fetch())
                 parameters = result[0]['parameters']
                 for param in parameters:
+                    # Validate Prompt
+                    if obs["prompt"] not in param["prompt"]:
+                        return jsonify({"error": "Checklist prompt (" + obs["prompt"] + ") not part of project"}), 400
+                    
+                    # Validate value
                     if param["prompt"] == obs["prompt"]:
                         if selected_checklist not in param["options"]:
                             return  jsonify({"error": "Selected checklist option is not an option"}), 400  
