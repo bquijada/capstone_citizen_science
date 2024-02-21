@@ -9,6 +9,7 @@ import requests
 
 client = datastore.Client()
 auth_bp = Blueprint('auth', __name__)
+
 oauth = OAuth(current_app)
 CLIENT_ID = "xm0b7wYkKdz7dtc0XsecmO8z5BPCMFrf"
 CLIENT_SECRET = "33rY21_EpoVNkXSyky5hoR0UFjrpq8feQUz9Nt6J6xUto5kOcol2LOVUhklAQvzn"
@@ -34,7 +35,7 @@ def callback():
     Callback redirect from Auth0
     """
     token = oauth.auth0.authorize_access_token()
-    session['user'] = token
+    session["user"] = token
 
     # Get user information from Auth0 userinfo endpoint
     userinfo_url = f'https://{DOMAIN}/userinfo'
@@ -44,7 +45,6 @@ def callback():
     if response.status_code == 200:
         user_info = response.json()
         user_id = user_info.get('sub')  # 'sub' is the user ID in Auth0
-        session['user_id'] = user_id    # store the user ID in the flask session
         user_name = user_info.get('name')
         user_email = user_info.get('email')
     else:
@@ -92,6 +92,11 @@ def signup():
 
 @auth_bp.route("/create_new_project")
 def create_new_project():
+    try:
+        userinfo = session.get('user').get("userinfo")
+        user = userinfo.get("sub")
+    except:
+        return redirect('/login',code = 302)
     return render_template('new_project.html')
 
 
