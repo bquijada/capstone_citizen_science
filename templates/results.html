@@ -1,17 +1,40 @@
+
 {% extends "base.html" %}
-{% block title %}Admin Dashboard{% endblock %}
+{% block title %}Results{% endblock %}
 {% block content %}
 
 <div>
     {% for p in project %}
         <h1>Results for Project {{ p.code }}: {{ p.title }}</h1>
-        <p>{{ p.description }}</p>
+        <p>Student ID: {{ p.student_id }}</p>
+        <p>Time & Date: {{ p.time_date }}</p>
+
         <h2>Resulting Data:</h2>
-        <p> {{p.observations_list}}</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Prompt</th>
+                    <th>Value</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for obs in p.observation %}
+                <tr>
+                    <td>{{ obs.prompt }}</td>
+                    <td>{{ obs.value }}</td>
+                    <td>{{ obs.comment }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p><a href="#" class="download-csv" data-project="{{ p }}">Download CSV</a></p>
     {% endfor %}
-    <p><a href="{{ url_for('auth.create_new_project') }}">Create Another Project</a></p>
 </div>
-<div>
-        <p><a href="{{ url_for('auth.admin_dashboard') }}">Back to Dashboard</a></p>
-</div>
+
+<p><a href="{{ url_for('auth.create_new_project') }}">Create Another Project</a></p>
+
 {% endblock %}
+
+<script src="{{ url_for('static', filename='download.js') }}"></script>
