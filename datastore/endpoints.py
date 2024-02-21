@@ -25,7 +25,7 @@ def code_generator(size, chars):
     return ''.join(code)
 
 
-@datastore_bp.route("/projects/", methods=["GET", "POST"])
+@datastore_bp.route("/projects/", methods=["POST"])
 def projects_get_post():
     """
     Get , Post a project
@@ -62,23 +62,6 @@ def projects_get_post():
 
             return jsonify({"Error": "Not able to create new project"}), 400
 
-    elif request.method == 'GET':
-        userinfo = session.get('user').get("userinfo")
-        user = userinfo.get("sub")
-        print("USER IS: " + user)
-        # filter for projects created by user
-        query = client.query(kind="projects")
-        query.add_filter("user", "=", user)
-        results = list(query.fetch())
-
-        # append id to results
-        for e in results:
-            e["id"] = e.key.id
-
-        return jsonify(results), 200
-    else:
-        return 'Method not recognized', 405
-
 
 @datastore_bp.route("/projects/<code>", methods=["GET"])
 def projects_get_code(code):
@@ -110,7 +93,7 @@ def projects_get_code(code):
 @datastore_bp.route("/projects/<code>/observations/<student_id>", methods=["GET", "POST", "PUT"])
 def observations_get_post(code, student_id):
     """
-    GET , POST , PUT Data
+    GET , POST , PUT a student's observations
     """
 
     # Convert code to all uppercase.

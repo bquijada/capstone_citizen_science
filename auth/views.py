@@ -6,7 +6,7 @@ from flask import Flask, render_template
 import os
 from google.cloud import datastore
 import requests
-current_sub = None
+
 client = datastore.Client()
 auth_bp = Blueprint('auth', __name__)
 oauth = OAuth(current_app)
@@ -34,7 +34,7 @@ def callback():
     Callback redirect from Auth0
     """
     token = oauth.auth0.authorize_access_token()
-    session["user"] = token
+    session['user'] = token
 
     # Get user information from Auth0 userinfo endpoint
     userinfo_url = f'https://{DOMAIN}/userinfo'
@@ -44,14 +44,12 @@ def callback():
     if response.status_code == 200:
         user_info = response.json()
         user_id = user_info.get('sub')  # 'sub' is the user ID in Auth0
-        global current_sub
-        current_sub = user_id
-        print("CHECK HERE" + user_id)
+        session['user_id'] = user_id    # store the user ID in the flask session
         user_name = user_info.get('name')
         user_email = user_info.get('email')
     else:
         return 'Failed to get user information from Auth0', 500
-    # add user to database in not already added
+    # Add user to database in not already added
     query = client.query(kind="users")
     query.add_filter("user", "=", user_id)
     result = list(query.fetch())
@@ -99,35 +97,40 @@ def create_new_project():
 
 @auth_bp.route("/view_projects")
 def view_projects():
-    url = PROJECT_URL + "/users/projects/" + current_sub
+    """Displays view projects page with all projects of a user"""
+    userinfo = session.get('user').get("userinfo")
+    user_id = userinfo.get("sub")
+    if not user_id:
+        return "User not authenticated", 401
+    url = PROJECT_URL + "/users/projects/" + user_id
 
-    # Make a GET request
     response = requests.get(url)
-    # Check if the request was successful (status code 200)
     if response.status_code == 200:
-        projects = response.json()  # Assuming the response is in JSON format
-        print("Projects:", projects)
+        projects = response.json()
         return render_template('view_projects.html', projects=projects)
     else:
-        print(f"Error IS HERE: {response.status_code}, {response.text}")
-        return f"Error IS HERE: {response.status_code}, {response.text}"
+        return f"Error: {response.status_code}, {response.text}"
 
 
 @auth_bp.route("/create_project")
 def create_project():
+    """Display project page after creating a new project"""
     return render_template('project.html')
 
 
 @auth_bp.route("/results/<code>")
 def view_results(code):
+    """Display results page for a project"""
     url = PROJECT_URL + "/projects/" + code
-    print("CODE: " + code)
-    # Make a GET request
     response = requests.get(url)
-    # Check if the request was successful (status code 200)
     if response.status_code == 200:
-        project = response.json()  # Assuming the response is in JSON format
-        print("Project:", project)
+        project = response.json()
         return render_template('results.html', project=project)
     return render_template('results.html')
 
+
+@auth_bp.route("/dashboard")
+def admin_dashboard():
+    userinfo = session.get('user').get("userinfo")
+    user_name = userinfo.get("name")
+    return render_template('admin_dashboard.html', name=user_name)

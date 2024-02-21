@@ -86,7 +86,7 @@ function createProject(){
 
         const observationType = flexDiv.dataset.observationType;
         const prompt = promptInput.value;
-        const options = optionsInput ? optionsInput.value.split(',').map(option => option.trim()) : null;
+        const options = optionsInput ? optionsInput.value.split(',').map(option => option.trim()) : [];
 
         const inputItem = new InputItem(observationType, prompt, options);
 
