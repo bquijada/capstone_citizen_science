@@ -89,6 +89,9 @@ function createProject(){
         const options = optionsInput ? optionsInput.value.split(',').map(option => option.trim()) : [];
 
         const inputItem = new InputItem(observationType, prompt, options);
+        if (observationType == "Numerical"){
+            inputItem.options = []
+        }
 
         inputItems.push(inputItem);
     });
