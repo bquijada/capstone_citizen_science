@@ -6,8 +6,11 @@
     <h1>Project: {{ title }}</h1>
     <h1>code: {{ code }}</h1>
         <p>{{ description }} </p>
-        
-        <a href="{{ url_for('auth.create_new_project') }}">Go Back</a>
-</div>
 
+    <p><a href="{{ url_for('auth.create_new_project') }}">Create Another Project</a></p>
+    <p><a href="{{ url_for('auth.view_results', code=code) }}">View Project Results</a></p>
+</div>
+<div>
+        <p><a href="{{ url_for('auth.admin_dashboard') }}">Back to Dashboard</a></p>
+</div>
 {% endblock %}

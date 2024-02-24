@@ -14,7 +14,7 @@ oauth = OAuth(current_app)
 CLIENT_ID = "xm0b7wYkKdz7dtc0XsecmO8z5BPCMFrf"
 CLIENT_SECRET = "33rY21_EpoVNkXSyky5hoR0UFjrpq8feQUz9Nt6J6xUto5kOcol2LOVUhklAQvzn"
 DOMAIN = "leungp.us.auth0.com"
-
+PROJECT_URL = "https://capstone-citizen-science.wl.r.appspot.com"
 oauth.register(
     'auth0',
     client_id=CLIENT_ID,
@@ -49,7 +49,7 @@ def callback():
         user_email = user_info.get('email')
     else:
         return 'Failed to get user information from Auth0', 500
-    # add user to database in not already added
+    # Add user to database in not already added
     query = client.query(kind="users")
     query.add_filter("user", "=", user_id)
     result = list(query.fetch())
@@ -102,14 +102,40 @@ def create_new_project():
 
 @auth_bp.route("/view_projects")
 def view_projects():
-    try:
-        userinfo = session.get('user').get("userinfo")
-        user = userinfo.get("sub")
-    except:
-        return redirect('/login',code = 302)
-    return render_template('view_projects.html')
+    """Displays view projects page with all projects of a user"""
+    userinfo = session.get('user').get("userinfo")
+    user_id = userinfo.get("sub")
+    if not user_id:
+        return "User not authenticated", 401
+    url = PROJECT_URL + "/users/projects/" + user_id
+
+    response = requests.get(url)
+    if response.status_code == 200:
+        projects = response.json()
+        return render_template('view_projects.html', projects=projects)
+    else:
+        return f"Error: {response.status_code}, {response.text}"
 
 
 @auth_bp.route("/create_project")
 def create_project():
+    """Display project page after creating a new project"""
     return render_template('project.html')
+
+
+@auth_bp.route("/results/<code>")
+def view_results(code):
+    """Display results page for a project"""
+    url = PROJECT_URL + "/projects/" + code
+    response = requests.get(url)
+    if response.status_code == 200:
+        project = response.json()
+        return render_template('results.html', project=project)
+    return render_template('results.html')
+
+
+@auth_bp.route("/dashboard")
+def admin_dashboard():
+    userinfo = session.get('user').get("userinfo")
+    user_name = userinfo.get("name")
+    return render_template('admin_dashboard.html', name=user_name)

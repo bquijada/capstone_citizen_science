@@ -116,3 +116,18 @@ padding: 20px;
 .proj-des{
   height: 80px;
 }
+
+.home-link {
+    top: 10px;
+    right: 10px;
+    text-decoration: none;
+    justify-content: right;
+}
+
+.home-icon {
+    width: 30px;
+    height: 30px;
+}
+.home-container {
+    justify-content: right;
+}

@@ -8,19 +8,19 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h2>Your Projects</h2>
+        <h2>Your Projects: Click to View Results</h2>
         <ul class="list-group">
 
             <!-- Update with database entity names -->
-            {% for project in user_projects %}
+            {% for project in projects %}
             <li class="list-group-item">
-                <a href="{{ url_for('results', project_id=project.id) }}">{{ project.name }}</a>
-                <span>{{ project.status }}</span>
+                <a href="{{ url_for('auth.view_results', code=project.code) }}">{{ project.title }} - {{ project.code }}</a>
             </li>
-            
             {% endfor %}
         </ul>
     </div>
 </div>
-
+<div>
+        <p><a href="{{ url_for('auth.admin_dashboard') }}">Back to Dashboard</a></p>
+</div>
 {% endblock %}

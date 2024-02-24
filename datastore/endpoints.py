@@ -95,7 +95,7 @@ def projects_get_post():
 @datastore_bp.route("/projects/<code>", methods=["GET"])
 def projects_get_code(code):
     """
-    Get , Post a project
+    Get a project by code identifier
     """
     # Convert code to all uppercase.
     if code:
@@ -118,9 +118,9 @@ def projects_get_code(code):
 
 
 @datastore_bp.route("/projects/<code>/observations/<student_id>", methods=["GET", "POST", "PUT"])
-def observations_get_post(code,student_id):
+def observations_get_post(code, student_id):
     """
-    GET , POST , PUT Data
+    GET , POST , PUT a student's observations
     """
     
     # Convert code to all uppercase.
@@ -150,11 +150,11 @@ def observations_get_post(code,student_id):
                 # Validate prompt
                 if obs["prompt"] not in project_prompt:
                         return jsonify({"error": "Numerical prompt (" + obs["prompt"] + ") is not part of project"}), 400
-                
+
                 # Validate value
                 if type(obs["value"]) != int:
                     return  jsonify({"error": "Numerical entry is not integer type"}), 400
-                
+
             # Validate dropdown entry
             if obs["observation_type"] == "Dropdown":
                 selected_dropdown = obs["value"]
@@ -162,7 +162,7 @@ def observations_get_post(code,student_id):
                     # Validate prompt
                     if obs["prompt"] not in project_prompt:
                         return jsonify({"error": "Dropdown prompt (" + obs["prompt"] + ") is not part of project"}), 400
-                    
+
                     # Validate value
                     if param["prompt"] == obs["prompt"]:
                         if selected_dropdown not in param["options"]:
@@ -175,11 +175,11 @@ def observations_get_post(code,student_id):
                     # Validate Prompt
                     if obs["prompt"] not in param["prompt"]:
                         return jsonify({"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
-                    
+
                     # Validate value
                     if param["prompt"] == obs["prompt"]:
                         if selected_checklist not in param["options"]:
-                            return  jsonify({"error": "Selected checklist option is not an option"}), 400  
+                            return  jsonify({"error": "Selected checklist option is not an option"}), 400
 
         observation_content = {
             "code": code,
@@ -201,23 +201,29 @@ def observations_get_post(code,student_id):
         client.put(project)
         return observation_content, 201
     elif request.method == 'GET':
-
-        # filter for projects created by user
-        query = client.query(kind="observations")
+        query = client.query(kind="projects")
         query.add_filter("code", "=", code)
-        
-        # add student_id filter
-        query.add_filter("student_id", "=", student_id)
 
         results = list(query.fetch())
-        # append id to results
-        for e in results:
-            e["id"] = e.key.id
 
-        return jsonify(results), 200
-    
+        if results:
+            project = results[0]
+
+            observations_list = project.get("observations_list", [])
+
+            student_observations = [
+                observation
+                for observation in observations_list
+                if observation.get("student_id") == student_id
+            ]
+
+            print("Observations for Student:", student_observations)
+
+            return jsonify({"observations_for_student": student_observations}), 200
+        else:
+            return jsonify({"error": "Project not found"}), 404
     elif request.method == 'PUT':
-        
+
         # get json from request
         content = request.get_json()
         datastore_id = content["id"]
@@ -225,27 +231,47 @@ def observations_get_post(code,student_id):
         # obtain observation Key
 
         observation_key = client.key("observations", int(datastore_id))
-        observation = client.get(key = observation_key)
-        
-        if observation == None:
+        observation = client.get(key=observation_key)
+
+        if observation is None:
             return jsonify({"error": "Invalid datastore ID"}), 404
-        
+
         # change contents from datastore
         observation["observation"] = content["observation"]
 
         # update datastore
         client.put(observation)
-        
+
         observation["id"] = datastore_id
         return jsonify(observation), 200
     else:
         return jsonify({"error": "Only POST, PUT, and GET requests are allowed for this endpoint"}), 405
-    
+
+
+@datastore_bp.route("/users/projects/<user_id>", methods=["GET"])
+def get_all_projects(user_id):
+    """
+    GET all projects for a user
+    """
+    if request.method == 'GET':
+        # filter for projects created by user
+        query = client.query(kind="projects")
+        query.add_filter("user", "=", user_id)
+        results = list(query.fetch())
+
+        # append id to results
+        for e in results:
+            e["id"] = e.key.id
+
+        return jsonify(results), 200
+    else:
+        return 'Method not recognized', 405
+
 
 @datastore_bp.route("/projects/<code>/observations", methods=["GET"])
 def observations_get(code):
     """
-    GET Data
+    GET all observations for a project
     """
     # Convert code to all uppercase.
     if code:
@@ -266,7 +292,7 @@ def observations_get(code):
         return jsonify(results), 200
     else:
         return jsonify({"error": "Only GET requests are allowed for this endpoint"}), 405
-    
+
 ##################################################################################################
 @datastore_bp.route("/projects", methods=["DELETE"])
 def observations_delete():
@@ -279,7 +305,7 @@ def observations_delete():
     if request.method == 'DELETE':
 
         # filter for projects created by user
-        
+
         query = client.query(kind="projects")
         query.add_filter("user", "=", user)
 

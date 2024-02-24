@@ -7,6 +7,9 @@
     <title>Create New Project</title>
 </head>
 <body>
+    <div class="home-container">
+        <a href="{{ url_for('auth.admin_dashboard') }}" class="home-link"><img src="{{ url_for('static', filename='icons8-home-64.png') }}" alt="Home Icon" class="home-icon"></a>
+    </div>
     <div class="new-project">
         <h2 class="inp-proj">Create New Science Project</h2>
         <input class="inp-proj" type="text" id="projectName" placeholder="Enter Project Name">
@@ -17,6 +20,7 @@
             <h2>Add Observation Methods</h2>
             <select id="observationMethodType">
                 <option value="" disabled selected>Select Method</option>
+                <option value="Text">Text Entry</option>
                 <option value="Dropdown">Dropdown Menu</option>
                 <option value="Checkbox">Checkbox List</option>
                 <option value="Numerical">Numerical Entry</option>
@@ -30,7 +34,6 @@
     <div class="btn-div">
         <button class="btn" type="button" onclick="createProject();">Create Project</button>
     </div>
-
     <script src="static/form.js"></script>
 </body>
 </html>

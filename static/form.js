@@ -41,9 +41,9 @@ function addInput(){
     options.type = "text";
     options.placeholder= "Enter Options (comma separated)";
 
-    if (observationMethodType === "Numerical") {
+    if (observationMethodType === "Numerical" || observationMethodType === "Text") {
         options.disabled = true;
-        options.placeholder= "No options for numerical entry";
+        options.placeholder= "No options for numerical/text entry";
     }
 
 
@@ -80,35 +80,45 @@ function createProject(){
         return;
     }
     const inputItems = [];
-    var optionExit = false // optionExit variable required to stop after .forEach() function
+    var optionExit = false; // optionExit variable required to stop after .forEach() function
+    var promptExit = false;
     flexDivs.forEach((flexDiv, index) => {
         const promptInput = flexDiv.querySelector("input[type='text']:first-child");
         const optionsInput = flexDiv.querySelector("input[type='text']:nth-child(2)");
 
         const observationType = flexDiv.dataset.observationType;
         const prompt = promptInput.value;
-        const options = optionsInput ? optionsInput.value.split(',').map(option => option.trim()) : null;
+        const options = optionsInput ? optionsInput.value.split(',').map(option => option.trim()) : [];
 
         const inputItem = new InputItem(observationType, prompt, options);
-
-        // Check if options is empty.
+        // Check if prompt is empty if so alert user.
+        if (prompt === "") {
+            if (!promptExit) {
+                alert(`Prompt cannot be empty for \nType: ${observationType}`);
+                promptExit = true;
+            }
+            return;
+        }
+        // Check if options is empty if so alert user.
         optionsLength = inputItem.options.length
         // Empty options returns optionsLength == 1. Check first item in options
         firstItemLength = inputItem.options[0].length
-        if (optionsLength == 1 && firstItemLength == 0 && observationType != "Numerical"){
-            alert(`At least one option is required for \nType: ${observationType} \nPrompt: ${prompt}`);
-            optionExit = true;
-            return
+        if (options.length === 1 && options[0] === "" && (observationType !== "Numerical" && observationType !== "Text")) {
+            if (!optionExit) {
+                alert(`At least one option is required for \nType: ${observationType} \nPrompt: ${prompt}`);
+                optionExit = true;
+            }
+            return;
         }
-        
-        if (observationType == "Numerical"){
+
+        if (observationType == "Numerical" || "Text"){
             inputItem.options = []
         }
-        
+
         inputItems.push(inputItem);
     });
 
-    if (optionExit == true){
+    if (optionExit || promptExit){
         return
     }
     // Create new project
