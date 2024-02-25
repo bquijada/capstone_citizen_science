@@ -128,9 +128,13 @@ def observations_get_post(code, student_id):
         code = code.upper()
 
     if request.method == 'POST':
+        content = request.get_json()
+
+        # Check for observation_parameters property in received body.
+        if content.get("observation_parameters") == None:
+            return jsonify({"error": "Missing observation_parameters property in body"}), 400
 
         # Add new observation entity
-        content = request.get_json()
         new_observation = datastore.entity.Entity(key=client.key("observations"))
 
         # Get project for data validation
@@ -143,7 +147,7 @@ def observations_get_post(code, student_id):
             project_prompt.append(param["prompt"])
 
         # Validate data entry
-        for obs in content["observation"]:
+        for obs in content["observation_parameters"]: 
             # Validate numerical entry
             if obs["observation_type"] == "Numerical":
 
@@ -184,7 +188,7 @@ def observations_get_post(code, student_id):
         observation_content = {
             "code": code,
             "time_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "observation": content["observation"],
+            "observation_parameters": content["observation_parameters"],
             "student_id": student_id
         }
         new_observation.update(observation_content)
