@@ -146,6 +146,12 @@ def observations_get_post(code, student_id):
         for param in parameters:
             project_prompt.append(param["prompt"])
 
+        # Validate total prompts submitted in body
+        project_prompt_len = len(project_prompt)
+        observation_parameters_len = len(content["observation_parameters"])
+        if observation_parameters_len != project_prompt_len:
+            return jsonify({"error": "Number of prompts submitted in body does not match number of prompts in project"}), 400
+            
         # Validate data entry
         for obs in content["observation_parameters"]: 
             # Validate numerical entry
