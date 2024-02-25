@@ -279,19 +279,27 @@ def observations_get(code):
 
     if request.method == 'GET':
 
-        # filter for projects created by user
         query = client.query(kind="observations")
         query.add_filter("code", "=", code)
 
         results = list(query.fetch())
 
-        # append id to results
-        for e in results:
-            e["id"] = e.key.id
+        # Group observations by prompt
+        grouped_observations = {}
+        for observation in results:
+            for obs in observation["observation"]:
+                prompt = obs["prompt"]
+                if prompt not in grouped_observations:
+                    grouped_observations[prompt] = []
+                obs["student_id"] = observation["student_id"]
+                obs["time_date"] = observation["time_date"]
+                grouped_observations[prompt].append(obs)
 
-        return jsonify(results), 200
+        # Render the template with grouped observations and project code
+        return render_template("results.html", observations_grouped=grouped_observations, project_code=code), 200
     else:
         return jsonify({"error": "Only GET requests are allowed for this endpoint"}), 405
+    
 
 ##################################################################################################
 @datastore_bp.route("/projects", methods=["DELETE"])
