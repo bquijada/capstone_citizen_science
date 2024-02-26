@@ -74,7 +74,7 @@ def projects_get_post():
             return content, 201
         except Exception as e:
 
-            return jsonify({"Error": "Not able to create new project"}), 400
+            return jsonify({"error": "Not able to create new project"}), 400
 
     elif request.method == 'GET':
 
@@ -114,7 +114,7 @@ def projects_get_code(code):
 
         return jsonify(results), 200
     else:
-        return jsonify({"error": "Only POST and GET requests are allowed for this endpoint"}), 405
+        return jsonify({"error": "Only GET requests are allowed for this endpoint"}), 405
 
 
 @datastore_bp.route("/projects/<code>/observations/<student_id>", methods=["GET", "POST", "PUT"])
@@ -163,7 +163,11 @@ def observations_get_post(code, student_id):
 
                 # Validate value
                 if type(obs["value"]) != int:
-                    return  jsonify({"error": "Numerical entry is not integer type"}), 400
+                    if obs["value"].isdigit() == False:
+                        return  jsonify({"error": "Numerical entry is not integer type"}), 400
+                elif type(obs["value"]) == int:
+                    obs["value"] = str(obs["value"])
+                    
 
             # Validate dropdown entry
             if obs["observation_type"] == "Dropdown":
@@ -217,6 +221,18 @@ def observations_get_post(code, student_id):
         results = list(query.fetch())
 
         if results:
+            # Get project details
+            query = client.query(kind="projects")
+            query.add_filter("code", "=", code)
+            project_results = list(query.fetch())
+            parameters = project_results[0]['parameters']
+            prompt_options = {}
+            project_prompt = []
+            for param in parameters:
+                prompt_options[param["prompt"]] = param["options"]
+
+        
+
             project = results[0]
 
             observations_list = project.get("observations_list", [])
@@ -227,9 +243,14 @@ def observations_get_post(code, student_id):
                 if observation.get("student_id") == student_id
             ]
 
-            print("Observations for Student:", student_observations)
+            for observation in student_observations:
+                for question in observation['observation_parameters']:
+                    question["options"] = prompt_options[question["prompt"]]
+             
+            project_results[0]["observations_list"].clear()
+            project_results[0]["observations_list"] = student_observations
 
-            return jsonify({"observations_for_student": student_observations}), 200
+            return jsonify(project_results), 200
         else:
             return jsonify({"error": "Project not found"}), 404
     elif request.method == 'PUT':
