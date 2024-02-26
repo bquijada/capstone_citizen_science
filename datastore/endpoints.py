@@ -74,7 +74,7 @@ def projects_get_post():
             return content, 201
         except Exception as e:
 
-            return jsonify({"Error": "Not able to create new project"}), 400
+            return jsonify({"error": "Not able to create new project"}), 400
 
     elif request.method == 'GET':
 
@@ -114,7 +114,7 @@ def projects_get_code(code):
 
         return jsonify(results), 200
     else:
-        return jsonify({"error": "Only POST and GET requests are allowed for this endpoint"}), 405
+        return jsonify({"error": "Only GET requests are allowed for this endpoint"}), 405
 
 
 @datastore_bp.route("/projects/<code>/observations/<student_id>", methods=["GET", "POST", "PUT"])
@@ -128,9 +128,13 @@ def observations_get_post(code, student_id):
         code = code.upper()
 
     if request.method == 'POST':
+        content = request.get_json()
+
+        # Check for observation_parameters property in received body.
+        if content.get("observation_parameters") == None:
+            return jsonify({"error": "Missing observation_parameters property in body"}), 400
 
         # Add new observation entity
-        content = request.get_json()
         new_observation = datastore.entity.Entity(key=client.key("observations"))
 
         # Get project for data validation
@@ -142,8 +146,14 @@ def observations_get_post(code, student_id):
         for param in parameters:
             project_prompt.append(param["prompt"])
 
+        # Validate total prompts submitted in body
+        project_prompt_len = len(project_prompt)
+        observation_parameters_len = len(content["observation_parameters"])
+        if observation_parameters_len != project_prompt_len:
+            return jsonify({"error": "Number of prompts submitted in body does not match number of prompts in project"}), 400
+            
         # Validate data entry
-        for obs in content["observation"]:
+        for obs in content["observation_parameters"]: 
             # Validate numerical entry
             if obs["observation_type"] == "Numerical":
 
@@ -153,7 +163,11 @@ def observations_get_post(code, student_id):
 
                 # Validate value
                 if type(obs["value"]) != int:
-                    return  jsonify({"error": "Numerical entry is not integer type"}), 400
+                    if obs["value"].isdigit() == False:
+                        return  jsonify({"error": "Numerical entry is not integer type"}), 400
+                elif type(obs["value"]) == int:
+                    obs["value"] = str(obs["value"])
+                    
 
             # Validate dropdown entry
             if obs["observation_type"] == "Dropdown":
@@ -184,20 +198,23 @@ def observations_get_post(code, student_id):
         observation_content = {
             "code": code,
             "time_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "observation": content["observation"],
+            "observation_parameters": content["observation_parameters"],
             "student_id": student_id
         }
         new_observation.update(observation_content)
         client.put(new_observation)
         new_observation_id = str(new_observation.key.id)
         observation_content["id"] = new_observation_id
-
+        
+        # Make a copy of observation_content to remove code property to append to observation_list in Project entity
+        observation_content_copy = observation_content.copy()
+        del observation_content_copy['code']
         # Update Project entity with new data.
         query = client.query(kind="projects")
         query.add_filter("code", "=", code)
         results = list(query.fetch())
         project = results[0]
-        project["observations_list"].append(observation_content)
+        project["observations_list"].append(observation_content_copy)
         client.put(project)
         return observation_content, 201
     elif request.method == 'GET':
@@ -207,6 +224,18 @@ def observations_get_post(code, student_id):
         results = list(query.fetch())
 
         if results:
+            # Get project details
+            query = client.query(kind="projects")
+            query.add_filter("code", "=", code)
+            project_results = list(query.fetch())
+            parameters = project_results[0]['parameters']
+            prompt_options = {}
+            project_prompt = []
+            for param in parameters:
+                prompt_options[param["prompt"]] = param["options"]
+
+        
+
             project = results[0]
 
             observations_list = project.get("observations_list", [])
@@ -217,9 +246,15 @@ def observations_get_post(code, student_id):
                 if observation.get("student_id") == student_id
             ]
 
-            print("Observations for Student:", student_observations)
+            for observation in student_observations:
+                del observation['code']
+                for question in observation['observation_parameters']:
+                    question["options"] = prompt_options[question["prompt"]]
+                    
+            project_results[0]["observations_list"].clear()
+            project_results[0]["observations_list"] = student_observations
 
-            return jsonify({"observations_for_student": student_observations}), 200
+            return jsonify(project_results), 200
         else:
             return jsonify({"error": "Project not found"}), 404
     elif request.method == 'PUT':
@@ -237,12 +272,26 @@ def observations_get_post(code, student_id):
             return jsonify({"error": "Invalid datastore ID"}), 404
 
         # change contents from datastore
-        observation["observation"] = content["observation"]
+        observation["observation_parameters"] = content["observation_parameters"]
 
         # update datastore
         client.put(observation)
-
         observation["id"] = datastore_id
+
+        # Remove and update observation_list in Project entity with edited observation
+        query = client.query(kind="projects")
+        query.add_filter("code", "=", code)
+        results = list(query.fetch())
+        project = results[0]
+
+        for project_observation in project["observations_list"]:
+            if project_observation["id"] == str(datastore_id):
+                # Remove old observation
+                project["observations_list"].remove(project_observation)
+                # Append edited observaiton
+                project["observations_list"].append(observation)
+        client.put(project)
+
         return jsonify(observation), 200
     else:
         return jsonify({"error": "Only POST, PUT, and GET requests are allowed for this endpoint"}), 405
