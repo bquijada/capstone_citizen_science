@@ -1,27 +1,34 @@
 
-document.addEventListener('DOMContentLoaded', function() {
-    var downloadLinks = document.querySelectorAll('.download-csv');
+document.addEventListener("DOMContentLoaded", function() {
+    var downloadCSVButton = document.getElementById("downloadCSV");
 
-    downloadLinks.forEach(function(link) {
-        link.addEventListener('click', function(event) {
-            event.preventDefault();
-            var project = JSON.parse(this.getAttribute('data-project'));
+    if (downloadCSVButton) {
+        downloadCSVButton.addEventListener("click", function() {
+            var currentDate = new Date();
+            var dateString = currentDate.toISOString().slice(0, 19).replace(/:/g, "-"); // Format: YYYY-MM-DDTHH-mm-ss
+            var filename = project_code + "_" + dateString + ".csv";
+
             var csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Prompt,Value,Student ID,Time and Date,Comment\n";
 
-            csvContent += "Code,Title,Student ID,Time & Date,Prompt,Value,Comment\n";
-
-            project.observation.forEach(function(obs) {
-                var row = `${project.code},${project.title},${project.student_id},${project.time_date},${obs.prompt},${obs.value},${obs.comment}\n`;
-                csvContent += row;
-            });
+            for (var prompt in observations_grouped) {
+                if (observations_grouped.hasOwnProperty(prompt)) {
+                    var observations = observations_grouped[prompt];
+                    for (var i = 0; i < observations.length; i++) {
+                        var observation = observations[i];
+                        csvContent += prompt + "," + observation.value + "," + observation.student_id + "," + observation.time_date + "," + observation.comment + "\n";
+                    }
+                }
+            }
 
             var encodedUri = encodeURI(csvContent);
             var link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", project.code + ".csv");
+            link.setAttribute("download", filename);
+            
             document.body.appendChild(link);
-
             link.click();
         });
-    });
+    }
 });
+

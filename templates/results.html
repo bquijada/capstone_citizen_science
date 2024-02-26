@@ -1,42 +1,49 @@
-
 {% extends "base.html" %}
 {% block title %}Results{% endblock %}
 {% block content %}
 
 <div>
-    {% for p in project %}
-        <h1>Results for Project {{ p.code }}: {{ p.title }}</h1>
-        <p>Student ID: {{ p.student_id }}</p>
-        <p>Time & Date: {{ p.time_date }}</p>
 
-        <h2>Resulting Data:</h2>
-        <table>
+    <h1>Results for Project {{ project_code }} </h1>
+    <button id="downloadCSV">Download CSV</button>
+
+    {% for prompt, observations in observations_grouped.items() %}
+        <h2>{{ prompt }}</h2>
+        <div>
+            <select id="graph-type-{{ loop.index }}">
+                <option value="bar">Bar Graph</option>
+                <option value="line">Line Graph</option>
+                <option value="scatter">Scatterplot</option>
+            </select>
+            <button onclick="generateGraph({{ loop.index }}, {{ observations_grouped | tojson }})">Generate Graph</button>
+        </div>
+        <div id="graph-container-{{ loop.index }}"></div>
+        <table border="1">
             <thead>
                 <tr>
-                    <th>Prompt</th>
                     <th>Value</th>
+                    <th>Student ID</th>
+                    <th>Time and Date</th>
                     <th>Comment</th>
                 </tr>
             </thead>
             <tbody>
-                {% for obs in p.observation %}
-                <tr>
-                    <td>{{ obs.prompt }}</td>
-                    <td>{{ obs.value }}</td>
-                    <td>{{ obs.comment }}</td>
-                </tr>
+                {% for observation in observations %}
+                    <tr>
+                        <td>{{ observation.value }}</td>
+                        <td>{{ observation.student_id }}</td>
+                        <td>{{ observation.time_date }}</td>
+                        <td>{{ observation.comment }}</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-        <p><a href="#" class="download-csv" data-project="{{ p }}">Download CSV</a></p>
     {% endfor %}
+
 </div>
 
-<p><a href="{{ url_for('auth.create_new_project') }}">Create Another Project</a></p>
-<div>
-        <p><a href="{{ url_for('auth.admin_dashboard') }}">Back to Dashboard</a></p>
-</div>
-{% endblock %}
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='download.js') }}"></script>
+<script src="{{ url_for('static', filename='graph.js') }}"></script>
+
+{% endblock %}
