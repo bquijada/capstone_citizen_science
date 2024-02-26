@@ -295,8 +295,14 @@ def observations_get(code):
                 obs["time_date"] = observation["time_date"]
                 grouped_observations[prompt].append(obs)
 
+        response_data = {
+            'grouped_observations': grouped_observations,
+            'code': code
+        }
+
         # Render the template with grouped observations and project code
-        return render_template("results.html", observations_grouped=grouped_observations, project_code=code), 200
+        # return render_template("results.html", observations_grouped=grouped_observations, project_code=code), 200
+        return jsonify(response_data), 200
     else:
         return jsonify({"error": "Only GET requests are allowed for this endpoint"}), 405
     
