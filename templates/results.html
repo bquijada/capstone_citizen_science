@@ -4,10 +4,10 @@
 
 <div>
 
-    <h1>Results for Project {{ project_code }} </h1>
+    <h1>Results for Project {{ response_data["code"] }} </h1>
     <button id="downloadCSV">Download CSV</button>
 
-    {% for prompt, observations in observations_grouped.items() %}
+    {% for prompt, observations in response_data["observations_grouped"].items() %}
         <h2>{{ prompt }}</h2>
         <div>
             <select id="graph-type-{{ loop.index }}">
