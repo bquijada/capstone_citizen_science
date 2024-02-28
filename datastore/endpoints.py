@@ -141,6 +141,11 @@ def observations_get_post(code, student_id):
         query = client.query(kind="projects")
         query.add_filter("code", "=", code)
         result = list(query.fetch())
+
+        # Check for project
+        if len(result) == 0:
+            return jsonify({"error": "No projects found with code (" + code + ")"}), 404
+
         parameters = result[0]['parameters']
         project_prompt = []
         for param in parameters:
@@ -154,6 +159,14 @@ def observations_get_post(code, student_id):
             
         # Validate data entry
         for obs in content["observation_parameters"]: 
+
+            # Check for prompt, observation_type, and value for each item.
+            if len(obs) != 3:
+                return jsonify({"error": "Total properties in (" + obs["prompt"] + ") does not equal to 3"}), 400
+                
+            if "prompt" not in obs or "observation_type" not in obs or "value" not in obs:
+                return jsonify({"error": "Missing prompt, observation_type, or value"}), 400
+
             # Validate numerical entry
             if obs["observation_type"] == "Numerical":
 
@@ -164,7 +177,7 @@ def observations_get_post(code, student_id):
                 # Validate value
                 if type(obs["value"]) != int:
                     if obs["value"].isdigit() == False:
-                        return  jsonify({"error": "Numerical entry is not integer type"}), 400
+                        return  jsonify({"error": "Numerical entry is not integer type or string type integer"}), 400
                 elif type(obs["value"]) == int:
                     obs["value"] = str(obs["value"])
                     
@@ -187,7 +200,7 @@ def observations_get_post(code, student_id):
                 selected_checklist = obs["value"]
                 for param in parameters:
                     # Validate Prompt
-                    if obs["prompt"] not in param["prompt"]:
+                    if obs["prompt"] not in project_prompt:
                         return jsonify({"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
 
                     # Validate value
@@ -247,7 +260,6 @@ def observations_get_post(code, student_id):
             ]
 
             for observation in student_observations:
-                del observation['code']
                 for question in observation['observation_parameters']:
                     question["options"] = prompt_options[question["prompt"]]
                     
@@ -261,15 +273,89 @@ def observations_get_post(code, student_id):
 
         # get json from request
         content = request.get_json()
+
+        # Check for id property in received body.
+        if content.get("id") == None:
+            return jsonify({"error": "Missing id property in body"}), 400
+        
         datastore_id = content["id"]
 
+        # Check for observation_parameters property in received body.
+        if content.get("observation_parameters") == None:
+            return jsonify({"error": "Missing observation_parameters property in body"}), 400
+        
         # obtain observation Key
-
         observation_key = client.key("observations", int(datastore_id))
         observation = client.get(key=observation_key)
 
         if observation is None:
             return jsonify({"error": "Invalid datastore ID"}), 404
+
+        # Get project for data validation
+        query = client.query(kind="projects")
+        query.add_filter("code", "=", code)
+        result = list(query.fetch())
+        parameters = result[0]['parameters']
+        project_prompt = []
+        for param in parameters:
+            project_prompt.append(param["prompt"])
+
+        # Validate total prompts submitted in body
+        project_prompt_len = len(project_prompt)
+        observation_parameters_len = len(content["observation_parameters"])
+        if observation_parameters_len != project_prompt_len:
+            return jsonify({"error": "Number of prompts submitted in body does not match number of prompts in project"}), 400
+            
+        # Validate data entry
+        for obs in content["observation_parameters"]: 
+            
+            # Check for prompt, observation_type, and value for each item.
+            if len(obs) != 3:
+                return jsonify({"error": "Total properties in (" + obs["prompt"] + ") does not equal to 3"}), 400
+                
+            if "prompt" not in obs or "observation_type" not in obs or "value" not in obs:
+                return jsonify({"error": "Missing prompt, observation_type, or value"}), 400
+
+            # Validate numerical entry
+            if obs["observation_type"] == "Numerical":
+
+                # Validate prompt
+                if obs["prompt"] not in project_prompt:
+                        return jsonify({"error": "Numerical prompt (" + obs["prompt"] + ") is not part of project"}), 400
+
+                # Validate value
+                if type(obs["value"]) != int:
+                    if obs["value"].isdigit() == False:
+                        return  jsonify({"error": "Numerical entry is not integer type or string type integer"}), 400
+                elif type(obs["value"]) == int:
+                    obs["value"] = str(obs["value"])
+                    
+
+            # Validate dropdown entry
+            if obs["observation_type"] == "Dropdown":
+                selected_dropdown = obs["value"]
+                for param in parameters:
+                    # Validate prompt
+                    if obs["prompt"] not in project_prompt:
+                        return jsonify({"error": "Dropdown prompt (" + obs["prompt"] + ") is not part of project"}), 400
+
+                    # Validate value
+                    if param["prompt"] == obs["prompt"]:
+                        if selected_dropdown not in param["options"]:
+                            return  jsonify({"error": "Selected dropdown is not an option"}), 400
+
+            # Validate checklist entry
+            if obs["observation_type"] == "Checklist":
+                selected_checklist = obs["value"]
+                for param in parameters:
+                    # Validate Prompt
+                    if obs["prompt"] not in project_prompt:
+                        return jsonify({"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
+
+                    # Validate value
+                    if param["prompt"] == obs["prompt"]:
+                        if selected_checklist not in param["options"]:
+                            return  jsonify({"error": "Selected checklist option is not an option"}), 400
 
         # change contents from datastore
         observation["observation_parameters"] = content["observation_parameters"]
@@ -336,7 +422,7 @@ def observations_get(code):
         # Group observations by prompt
         grouped_observations = {}
         for observation in results:
-            for obs in observation["observation"]:
+            for obs in observation["observation_parameters"]:
                 prompt = obs["prompt"]
                 if prompt not in grouped_observations:
                     grouped_observations[prompt] = []
