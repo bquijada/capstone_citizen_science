@@ -331,23 +331,18 @@ def observations_get(code):
         query = client.query(kind="observations")
         query.add_filter("code", "=", code)
 
+        # append id to results
+        for e in results:
+            e["id"] = e.key.id
+
         results = list(query.fetch())
 
-        # Group observations by prompt
-        grouped_observations = {}
-        for observation in results:
-            for obs in observation["observation"]:
-                prompt = obs["prompt"]
-                if prompt not in grouped_observations:
-                    grouped_observations[prompt] = []
-                obs["student_id"] = observation["student_id"]
-                obs["time_date"] = observation["time_date"]
-                grouped_observations[prompt].append(obs)
-
         # Render the template with grouped observations and project code
-        return render_template("results.html", observations_grouped=grouped_observations, project_code=code), 200
+        # return render_template("results.html", observations_grouped=grouped_observations, project_code=code), 200
+        return jsonify(results), 200
     else:
         return jsonify({"error": "Only GET requests are allowed for this endpoint"}), 405
+
     
 
 ##################################################################################################
