@@ -3,47 +3,48 @@
 {% block content %}
 
 <div>
+    <h1>Results for Project {{ project[0].code }} </h1>
+    <button id="download-csv">Download CSV</button>
+    <div>
+        {% for prompt in project[0].parameters %}
+        <h2>Prompt: {{ prompt.prompt }}</h2>
 
-    <h1>Results for Project {{ project_code }} </h1>
-    <button id="downloadCSV">Download CSV</button>
 
-    {% for prompt, observations in observations_grouped.items() %}
-        <h2>{{ prompt }}</h2>
-        <div>
-            <select id="graph-type-{{ loop.index }}">
-                <option value="bar">Bar Graph</option>
-                <option value="line">Line Graph</option>
-                <option value="scatter">Scatterplot</option>
-            </select>
-            <button onclick="generateGraph({{ loop.index }}, {{ observations_grouped | tojson }})">Generate Graph</button>
-        </div>
-        <div id="graph-container-{{ loop.index }}"></div>
         <table border="1">
             <thead>
                 <tr>
                     <th>Value</th>
                     <th>Student ID</th>
                     <th>Time and Date</th>
-                    <th>Comment</th>
                 </tr>
             </thead>
             <tbody>
-                {% for observation in observations %}
-                    <tr>
-                        <td>{{ observation.value }}</td>
-                        <td>{{ observation.student_id }}</td>
-                        <td>{{ observation.time_date }}</td>
-                        <td>{{ observation.comment }}</td>
-                    </tr>
+                {% for obs in project[0].observations_list %}
+                {% for obs_param in obs.observation_parameters %}
+                {% if obs_param.prompt == prompt.prompt %}
+                <tr>
+                    <td>{{ obs_param.value }}</td>
+                    <td>{{ obs.student_id }}</td>
+                    <td>{{ obs.time_date }}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
                 {% endfor %}
             </tbody>
         </table>
-    {% endfor %}
 
+        <div id="graph-options">
+            <select class="graph-type">
+                <option value="bar">Bar Graph</option>
+            </select>
+            <button class="generate-graph">Generate Graph</button>
+        </div>
+
+        {% endfor %}
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>var projectData = JSON.parse('{{ project | tojson | safe }}');</script>
 <script src="{{ url_for('static', filename='download.js') }}"></script>
-<script src="{{ url_for('static', filename='graph.js') }}"></script>
 
 {% endblock %}
