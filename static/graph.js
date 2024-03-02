@@ -1,56 +1,130 @@
-function generateGraph(index, observations_grouped) {
-    var graphType = document.getElementById('graph-type-' + index).value;
-    var data = {};
-    
-    // Count the frequency of each unique student response
-    for (const observation of observations_grouped.values()) {
-        for (const item of observation) {
-            var response = item.value;
-            if (data[response] === undefined) {
-                data[response] = 1;
-            } else {
-                data[response]++;
-            }
+$(document).ready(function() {
+    $('.graph-btn').click(function() {
+        const prompt = $(this).data('prompt');
+        const obsType = $(this).data('type');
+
+        const relevantData = extractData(projectData, prompt);
+
+        if (obsType === 'Numerical') {
+            generateScatterPlot(prompt, relevantData);
+        } else if (obsType === 'Dropdown') {
+            generateBarChart(prompt, relevantData);
         }
-    }
+    });
 
-    var labels = Object.keys(data);
-    var counts = Object.values(data);
+    function extractData(projectData, prompt) {
+        const relevantData = [];
 
-    var canvas = document.createElement('canvas');
-    canvas.id = 'graphCanvas' + index;
-    document.getElementById('graph-container-' + index).innerHTML = '';
-    document.getElementById('graph-container-' + index).appendChild(canvas);
+        for (const observationSet of projectData[0].observations_list) {
+            for (const obsParam of observationSet.observation_parameters) {
+                if (obsParam.prompt === prompt) {
+                    const time_str = observationSet.time_date;
+                    const [date, time] = time_str.split(" ");
+                    new_time = convertTimeToDecimal(time)
 
-    var ctx = document.getElementById('graphCanvas' + index).getContext('2d');
-    var chart = new Chart(ctx, {
-        type: graphType,
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Frequency',
-                data: counts,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Frequency'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Unique Student Responses'
-                    }
+                    relevantData.push({
+                        value: obsParam.value,
+                        student_id: observationSet.student_id,
+                        date: date,
+                        time: new_time 
+                    });
                 }
             }
         }
-    });
-}
+        return relevantData;
+    }
+
+    function generateScatterPlot(prompt, data) { 
+        if (window.myChart && typeof window.myChart.destroy === 'function') {
+            window.myChart.destroy();
+        }
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+
+        const xValues = data.map(item => item.value);
+        const yValues = data.map(item => item.time);
+
+        window.myChart = new Chart(ctx, {
+            type: 'scatter',
+            data: { 
+                labels: xValues,
+                datasets: [{
+                    label: prompt,
+                    data: yValues
+                    // Add more styling options here
+                }]
+            },
+            options: {
+                scales: {
+                    x: {  // Options for the x-axis
+                        title: {
+                            display: true,
+                            text: 'Value' 
+                        }
+                    },
+                    y: {  // Options for the y-axis
+                        title: {
+                            display: true,
+                            text: 'Tine' 
+                        }
+                    }
+                }
+            }
+            // Add more Chart.js options here for customization
+        }); 
+    }
+
+    function generateBarChart(prompt, data) {
+        if (window.myChart && typeof window.myChart.destroy === 'function') {
+            window.myChart.destroy();
+        }
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+
+        // Calculate frequencies
+        const valueCounts = {};
+        data.forEach(item => {
+            valueCounts[item.value] = (valueCounts[item.value] || 0) + 1;
+        });
+
+        const labels = Object.keys(valueCounts);
+        const frequencies = Object.values(valueCounts);
+        window.myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: prompt, 
+                    data: frequencies,
+                    // Add more styling options here
+                }]
+            },
+            options: {
+                scales: {
+                    x: {  // Options for the x-axis
+                        title: {
+                            display: true,
+                            text: 'Value' 
+                        }
+                    },
+                    y: {  // Options for the y-axis
+                        title: {
+                            display: true,
+                            text: 'Frequency' 
+                        }
+                    }
+                }
+            }
+            // Add more Chart.js options here for customization
+        });
+    }
+
+    function convertTimeToDecimal(time) {
+        const [hoursStr, minutesStr, secondsStr] = time.split(":");
+        const hours = parseInt(hoursStr, 10);
+        const minutes = parseInt(minutesStr, 10) / 60; 
+        const seconds = parseInt(secondsStr, 10) / 3600; 
+    
+        return hours + minutes + seconds;
+    }
+});
