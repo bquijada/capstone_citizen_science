@@ -33,18 +33,23 @@
             </tbody>
         </table>
 
-        <div id="graph-options">
-            <select class="graph-type">
-                <option value="bar">Bar Graph</option>
-            </select>
-            <button class="generate-graph">Generate Graph</button>
+        <div>
+            <button class="graph-btn" data-prompt="{{prompt.prompt}}" data-type="{{prompt.observation_type}}">Generate Graph</button> 
         </div>
 
         {% endfor %}
     </div>
+    
+    <div><canvas id="myChart"></canvas></div>
+    
 </div>
 
-<script>var projectData = JSON.parse('{{ project | tojson | safe }}');</script>
+<script>var projectData = JSON.parse('{{ project | tojson | safe }}')</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+<script src="{{ url_for('static', filename='graph.js') }}"></script>
 <script src="{{ url_for('static', filename='download.js') }}"></script>
 
 {% endblock %}
