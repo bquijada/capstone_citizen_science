@@ -10,6 +10,9 @@ $(document).ready(function() {
         } else if (obsType === 'Dropdown') {
             generateBarChart(prompt, relevantData);
         }
+        else if (obsType === 'Text'){
+            generateWordCloud(relevantData);
+        }
     });
 
     function extractData(projectData, prompt) {
@@ -128,3 +131,51 @@ $(document).ready(function() {
         return hours + minutes + seconds;
     }
 });
+
+
+    function generateWordCloud(relevantData){
+       if (window.myChart && typeof window.myChart.destroy === 'function') {
+            window.myChart.destroy();
+        }
+       const valuesArray = relevantData.map(item => item.value);
+       const concatenatedString = valuesArray.join(' ');
+
+        fetch('https://capstone-citizen-science.wl.r.appspot.com/wordcloud', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            text: concatenatedString,
+        }),
+      })
+        .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        // Server returns the base64-encoded png image
+        return response.text();
+    })
+        .then(data => {
+            console.log(data);
+            renderCloud(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    function renderCloud(imageUrl) {
+        const canvasContainer = document.getElementById('myChartContainer');
+
+        // Create an img element
+        const img = new Image();
+        img.src = `data:image/png;base64,${imageUrl}`;
+        img.alt = 'Word Cloud';
+
+        // Clear canvas container and append the img element
+        canvasContainer.innerHTML = '';
+        canvasContainer.appendChild(img);
+}
+
