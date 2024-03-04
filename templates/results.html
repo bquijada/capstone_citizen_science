@@ -34,7 +34,7 @@
         </table>
 
         <div>
-            <button class="graph-btn" data-prompt="{{prompt.prompt}}" data-type="{{prompt.observation_type}}">Generate Graph</button> 
+            <button id="graphButton" class="graph-btn" data-prompt="{{prompt.prompt}}" data-type="{{prompt.observation_type}}">Generate Graph</button>
         </div>
 
         {% endfor %}
@@ -43,6 +43,20 @@
     <div id="myChartContainer"><canvas id="myChart"></canvas></div>
     
 </div>
+
+<script>
+    var button = document.getElementById("graphButton");
+
+    var observationType = button.getAttribute("data-type");
+
+    // Set button text based on data type
+    if (observationType === "Text") {
+        button.textContent = "Generate Word Cloud";
+    } else {
+        button.textContent = "Generate Graph";
+    }
+</script>
+
 
 <script>var projectData = JSON.parse('{{ project | tojson | safe }}')</script>
 
