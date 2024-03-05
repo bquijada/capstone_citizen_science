@@ -37,11 +37,11 @@ $(document).ready(function() {
         return relevantData;
     }
 
-    function generateScatterPlot(prompt, data) { 
+    function generateScatterPlot(prompt, data) {
         if (window.myChart && typeof window.myChart.destroy === 'function') {
             window.myChart.destroy();
         }
-
+        removeWordCloudImage();
         var ctx = document.getElementById('myChart').getContext('2d');
 
         const xValues = data.map(item => item.value);
@@ -81,7 +81,7 @@ $(document).ready(function() {
         if (window.myChart && typeof window.myChart.destroy === 'function') {
             window.myChart.destroy();
         }
-
+        removeWordCloudImage();
         var ctx = document.getElementById('myChart').getContext('2d');
 
         // Calculate frequencies
@@ -169,13 +169,21 @@ $(document).ready(function() {
     function renderCloud(imageUrl) {
         const canvasContainer = document.getElementById('myChartContainer');
 
-        // Create an img element
+        // Create img element
         const img = new Image();
+        img.id = 'wordCloudImage';
         img.src = `data:image/png;base64,${imageUrl}`;
         img.alt = 'Word Cloud';
 
-        // Clear canvas container and append the img element
+        // Append the img element
         canvasContainer.innerHTML = '';
         canvasContainer.appendChild(img);
 }
 
+
+    function removeWordCloudImage() {
+        const wordCloudImage = document.getElementById('wordCloudImage');
+        if (wordCloudImage) {
+            wordCloudImage.remove();
+        }
+    }

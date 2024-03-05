@@ -50,21 +50,21 @@ def projects_get_post():
                 query.add_filter("code", "=", code)
                 result = list(query.fetch())
 
-        # Access form data using request.form (because form content-type is not json)
         content = request.get_json()
         content["user"] = user
         content["code"] = code
         content["observations_list"] = []
+        print(content)
 
-        for param in content["parameters"]:
+       #for param in content["parameters"]:
 
-            if param["observation_type"] == "Dropdown":
-                if (len(param["options"])  == 1) & (param["options"][0] == ''):
-                    return jsonify({"error": "Options for Dropdown required"}), 400
+       #    if param["observation_type"] == "Dropdown":
+       #        if (len(param["options"]) == 1) & (param["options"][0] == ''):
+       #            return jsonify({"error": "Options for Dropdown required"}), 400
 
-            if param["observation_type"] == "Checklist":
-                if (len(param["options"])  == 1) & (param["options"][0] == ''):
-                    return jsonify({"error": "Options for Checklist required"}), 400
+       #    if param["observation_type"] == "Checklist":
+       #        if (len(param["options"]) == 1) & (param["options"][0] == ''):
+       #            return jsonify({"error": "Options for Checklist required"}), 400
 
         new_project = datastore.entity.Entity(key=client.key("projects"))
         new_project.update(content)
@@ -173,15 +173,14 @@ def observations_get_post(code, student_id):
 
                 # Validate prompt
                 if obs["prompt"] not in project_prompt:
-                        return jsonify({"error": "Numerical prompt (" + obs["prompt"] + ") is not part of project"}), 400
+                    return jsonify({"error": "Numerical prompt (" + obs["prompt"] + ") is not part of project"}), 400
 
                 # Validate value
                 if type(obs["value"]) != int:
                     if obs["value"].isdigit() == False:
-                        return  jsonify({"error": "Numerical entry is not integer type or string type integer"}), 400
+                        return jsonify({"error": "Numerical entry is not integer type or string type integer"}), 400
                 elif type(obs["value"]) == int:
                     obs["value"] = str(obs["value"])
-
 
             # Validate dropdown entry
             if obs["observation_type"] == "Dropdown":
