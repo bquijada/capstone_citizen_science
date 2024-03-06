@@ -1,11 +1,34 @@
-{% extends "base.html" %}
-{% block title %}Welcome to Citizen Science App{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Citizen Science App for Kids{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"> 
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet"> 
+</head>
 
-<div class="login-auth">
-  <h1>Welcome To Citizen Science Admin Site</h1>
-    <p>By Clicking on the link below you will be redirected to a login with Auth0. </p>
-    <a href="\login">Authentication</a>
+<body class="home-page"> 
+
+<header>
+  <div class="container"></div>
+</header>
+
+<div class="col-md-9"> 
+  <div class="login-auth">
+    <h1>Citizen Science App for Kids</h1>
+    <h2>Admin Site</h2>
+    <p>Create Citizen Science projects and turn student observations into meaningful data insights for your classroom.</p> 
+    <p>Please log in to access your dashboard.</p>
+    <button class="btn-primary" onclick="location.href = '\login'">Login</button>
+    <button class="btn-primary" onclick="location.href = '\signup'">Sign Up</button>
+  </div>
 </div>
 
-{% endblock %}
+<footer>
+  <div class="container"></div>
+</footer>
+
+</body>
