@@ -196,18 +196,18 @@ def observations_get_post(code, student_id):
                             return jsonify({"error": "Selected dropdown is not an option"}), 400
 
             # Validate checklist entry
-            if obs["observation_type"] == "Checklist":
-                selected_checklist = obs["value"]
-                for param in parameters:
-                    # Validate Prompt
-                    if obs["prompt"] not in project_prompt:
-                        return jsonify(
-                            {"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
-
-                    # Validate value
-                    if param["prompt"] == obs["prompt"]:
-                        if selected_checklist not in param["options"]:
-                            return jsonify({"error": "Selected checklist option is not an option"}), 400
+           # if obs["observation_type"] == "Checklist":
+           #     selected_checklist = obs["value"]
+           #     for param in parameters:
+           #         # Validate Prompt
+           #         if obs["prompt"] not in project_prompt:
+           #             return jsonify(
+           #                 {"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
+#
+           #         # Validate value
+           #         if param["prompt"] == obs["prompt"]:
+           #             if selected_checklist not in param["options"]:
+           #                 return jsonify({"error": "Selected checklist option is not an option"}), 400
 
         observation_content = {
             "code": code,
@@ -344,18 +344,18 @@ def observations_get_post(code, student_id):
                             return jsonify({"error": "Selected dropdown is not an option"}), 400
 
             # Validate checklist entry
-            if obs["observation_type"] == "Checklist":
-                selected_checklist = obs["value"]
-                for param in parameters:
-                    # Validate Prompt
-                    if obs["prompt"] not in project_prompt:
-                        return jsonify(
-                            {"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
-
-                    # Validate value
-                    if param["prompt"] == obs["prompt"]:
-                        if selected_checklist not in param["options"]:
-                            return jsonify({"error": "Selected checklist option is not an option"}), 400
+           # if obs["observation_type"] == "Checklist":
+           #     selected_checklist = obs["value"]
+           #     for param in parameters:
+           #         # Validate Prompt
+           #         if obs["prompt"] not in project_prompt:
+           #             return jsonify(
+           #                 {"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
+#
+           #         # Validate value
+           #         if param["prompt"] == obs["prompt"]:
+           #             if selected_checklist not in param["options"]:
+           #                 return jsonify({"error": "Selected checklist option is not an option"}), 400
 
         # change contents from datastore
         observation["observation_parameters"] = content["observation_parameters"]
