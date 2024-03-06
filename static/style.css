@@ -1,0 +1,108 @@
+/* General Styles */
+
+h1, h2, h3, h4 {
+    color: #8bc34a;
+    font-family: 'Merriweather', serif; 
+    font-weight: 700;
+}
+
+p {
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+
+
+.result-link {
+    color: #8bc34a;
+    font-family: 'Merriweather', serif; 
+}
+
+
+.container {
+    max-width: 960px; /* Limit container width for readability */
+    margin: 20px auto;  /* Center the container */
+}
+
+.dashboard-welcome { /* Target your specific column classes */
+    max-width: 400px;
+}
+
+
+/* Navigation Styles */
+.navbar {
+    background: white;
+    border-bottom: 1px solid #ddd; /* Adjust thickness and color as desired */
+}
+
+.nav-style {
+    font-family: 'Source Sans Pro', sans-serif;    
+    font-weight: 700;
+    color: #8bc34a; 
+}
+
+.navbar-nav a { 
+    font-family: 'Source Sans Pro', sans-serif;    
+    font-weight: 700;
+    color: #8bc34a;
+}
+
+
+/* Project Card Styles */
+.project-card {
+    border: 2px solid #98D9AA; /* Light green */
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+/* Data Highlight */
+.data-highlight {
+    color: #9D2568;  /* Dark magenta */
+    font-weight: bold;
+}
+
+/* Button */
+
+.btn-primary {
+    background-color: #1a259b; /* Your desired button color */
+    color: white;
+    border: none;
+    padding: 10px 20px; 
+    text-decoration: none;  /* Removes link underline (if needed) */
+    cursor: pointer;        
+    border-radius: 5px; 
+    box-shadow: 0 3px 6px rgba(0,0,0, 0.4);      
+}
+
+.home-page {
+    background-image: url("images/home-bkg.jpg");
+    background-size: cover;         
+    background-repeat: no-repeat;
+    background-position: left; /* Centers the image */
+    background-attachment: fixed;       /* Prevents scrolling  */
+    position: fixed;                    /* Key for absolute immobility */
+    top: 0;
+    left: 0;
+    min-width: 100%;  
+    min-height: 100%; 
+}
+
+.login-auth {
+    text-align: center; /* Center the content */
+    padding: 30px;      /* Add spacing around content */
+    margin: 100px auto;  /* Center horizontally with margins */
+    border: 1px solid #ddd; 
+    border-radius: 5px;
+    box-shadow: 0 10px 15px rgba(0,0,0, 0.4);
+    width: 400px;
+    background: #f7f9fb;
+}
+
+.col-md-6:last-child { /* Targets the second column */
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 40%;  /* Adjust this width, might need to be smaller than 50% */
+    height: 100vh; /* Makes the column take full viewport height */
+    margin: 100px;
+} 
+  

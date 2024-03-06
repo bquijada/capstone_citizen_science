@@ -2,15 +2,26 @@
 {% block title %}Admin Dashboard{% endblock %}
 {% block content %}
 
-<div>
-    <h1>Welcome to {{ name }}'s Dashboard</h1>
-</div>
+<div class="container-fluid"></div>
+  <div class="row">
+    <div class="col-12 col-md-6"> 
+      <div class = "dashboard-welcome">
+        <h1>Welcome to {{ name }}'s Dashboard</h1>
+      </div>
+      <div>
+        <ul class="list-group">
+          <li class="list-group-item"><a class = "result-link" href="{{ url_for('auth.create_new_project') }}">Create New Project</a></li>
+          <li class="list-group-item"><a class = "result-link" href="{{ url_for('auth.view_projects') }}">View Projects</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-12 col-md-6"> 
+        <h3>Your Citizen Science Toolkit</h3>
+        <p>As a teacher, design Citizen Science projects that encourage students to become active contributors to scientific exploration.</p>
+        <p>Manage your projects, view student observations, and gain insights with data analysis tools. Generate informative graphs and export data to track student progress over time.</p>
+      </div>
+  </div>
 
-<div>
-    <ul class="list-group">
-        <li class="list-group-item"><a href="{{ url_for('auth.create_new_project') }}">Create New Project</a></li>
-        <li class="list-group-item"><a href="{{ url_for('auth.view_projects') }}">View Projects</a></li>
-    </ul>
 </div>
 
 {% endblock %}
