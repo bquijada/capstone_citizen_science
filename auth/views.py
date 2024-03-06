@@ -152,9 +152,10 @@ def wordcloud_proxy():
     text = request_data['text']
 
     resp = requests.post(quickchart_url, json={
-        'format': 'png',
         'width': 1000,
         'height': 1000,
+        'loadGoogleFonts': "Merriweather",
+        'fontFamily': "Merriweather",
         'fontScale': 15,
         'scale': 'linear',
         'removeStopwords': True,

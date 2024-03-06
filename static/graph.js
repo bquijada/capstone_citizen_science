@@ -178,7 +178,7 @@ $(document).ready(function() {
         // Create img element
         const img = new Image();
         img.id = 'wordCloudImage';
-        img.src = `data:image/png;base64,${imageUrl}`;
+        img.src = `data:image/svg+xml;base64,${imageUrl}`;
         img.alt = 'Word Cloud';
 
         // Append the img element
