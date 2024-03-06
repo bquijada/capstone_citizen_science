@@ -134,12 +134,18 @@ $(document).ready(function() {
 
 
     function generateWordCloud(relevantData){
+
        if (window.myChart && typeof window.myChart.destroy === 'function') {
             window.myChart.destroy();
         }
        const valuesArray = relevantData.map(item => item.value);
        const concatenatedString = valuesArray.join(' ');
 
+       if (!concatenatedString || concatenatedString.length === 0) {
+        // Send an alert to the user if data is missing
+        alert("Cannot generate word cloud without student responses.");
+        return;
+    }
         fetch('https://capstone-citizen-science.wl.r.appspot.com/wordcloud', {
         method: 'POST',
         headers: {
