@@ -88,7 +88,7 @@ function createProject(){
 
         const observationType = flexDiv.dataset.observationType;
         const prompt = promptInput.value;
-        const options = optionsInput ? optionsInput.value.split(',').map(option => option.trim()) : [];
+        const options = optionsInput && optionsInput.value.trim() !== '' ? optionsInput.value.split(',').map(option => option.trim()) : [];
 
         const inputItem = new InputItem(observationType, prompt, options);
         // Check if prompt is empty if so alert user.
@@ -100,19 +100,12 @@ function createProject(){
             return;
         }
         // Check if options is empty if so alert user.
-        optionsLength = inputItem.options.length
-        // Empty options returns optionsLength == 1. Check first item in options
-        firstItemLength = inputItem.options[0].length
-        if (options.length === 1 && options[0] === "" && (observationType !== "Numerical" && observationType !== "Text")) {
+        if (!options && (observationType !== "Numerical" && observationType !== "Text")) {
             if (!optionExit) {
                 alert(`At least one option is required for \nType: ${observationType} \nPrompt: ${prompt}`);
                 optionExit = true;
             }
             return;
-        }
-
-        if (observationType == "Numerical" || "Text"){
-            inputItem.options = []
         }
 
         inputItems.push(inputItem);
@@ -125,7 +118,8 @@ function createProject(){
     const projectTitle = document.getElementById("projectName").value;
     const projectDescription = document.getElementById("projectDescription").value;
     let newProject = new Project(projectTitle, projectDescription, inputItems);
-
+    console.log(newProject)
+    console.log(inputItems)
     sendToDatabase('/projects', 'POST', newProject)
         .then(response => {
             code = response.code

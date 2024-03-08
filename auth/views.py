@@ -1,11 +1,13 @@
 import json
-
-from flask import Blueprint, redirect, session, url_for, current_app
+from flask_cors import CORS
+import requests
+from flask import Blueprint, redirect, session, url_for, current_app, jsonify
 from authlib.integrations.flask_client import OAuth
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import os
 from google.cloud import datastore
 import requests
+import base64
 
 client = datastore.Client()
 auth_bp = Blueprint('auth', __name__)
@@ -55,7 +57,7 @@ def callback():
     result = list(query.fetch())
     if not result:
         new_user = datastore.entity.Entity(key=client.key("users"))
-        new_user.update({"name": user_name, "email": user_email, "user": user_id })
+        new_user.update({"name": user_name, "email": user_email, "user": user_id})
         client.put(new_user)
     return render_template('admin_dashboard.html', name=user_name)
 
@@ -96,7 +98,7 @@ def create_new_project():
         userinfo = session.get('user').get("userinfo")
         user = userinfo.get("sub")
     except:
-        return redirect('/login',code = 302)
+        return redirect('/login', code=302)
     return render_template('new_project.html')
 
 
@@ -139,3 +141,28 @@ def admin_dashboard():
     userinfo = session.get('user').get("userinfo")
     user_name = userinfo.get("name")
     return render_template('admin_dashboard.html', name=user_name)
+
+
+@auth_bp.route('/wordcloud', methods=['POST'])
+def wordcloud_proxy():
+    quickchart_url = 'https://quickchart.io/wordcloud'
+    request_data = request.get_json()
+    if 'text' not in request_data:
+        return jsonify({'error': 'Text not provided in the request body'}), 400
+    text = request_data['text']
+
+    resp = requests.post(quickchart_url, json={
+        'width': 1000,
+        'height': 1000,
+        'loadGoogleFonts': "Merriweather",
+        'fontFamily': "Merriweather",
+        'fontScale': 15,
+        'scale': 'linear',
+        'removeStopwords': True,
+        'minWordLength': 4,
+        'text': text,
+    })
+    # Encode the image to base64
+    image_base64 = base64.b64encode(resp.content).decode('utf-8')
+
+    return image_base64

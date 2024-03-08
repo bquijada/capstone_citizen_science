@@ -10,6 +10,9 @@ $(document).ready(function() {
         } else if (obsType === 'Dropdown') {
             generateBarChart(prompt, relevantData);
         }
+        else if (obsType === 'Text'){
+            generateWordCloud(relevantData);
+        }
     });
 
     function extractData(projectData, prompt) {
@@ -34,11 +37,11 @@ $(document).ready(function() {
         return relevantData;
     }
 
-    function generateScatterPlot(prompt, data) { 
+    function generateScatterPlot(prompt, data) {
         if (window.myChart && typeof window.myChart.destroy === 'function') {
             window.myChart.destroy();
         }
-
+        removeWordCloudImage();
         var ctx = document.getElementById('myChart').getContext('2d');
 
         const xValues = data.map(item => item.value);
@@ -78,7 +81,7 @@ $(document).ready(function() {
         if (window.myChart && typeof window.myChart.destroy === 'function') {
             window.myChart.destroy();
         }
-
+        removeWordCloudImage();
         var ctx = document.getElementById('myChart').getContext('2d');
 
         // Calculate frequencies
@@ -128,3 +131,65 @@ $(document).ready(function() {
         return hours + minutes + seconds;
     }
 });
+
+
+    function generateWordCloud(relevantData){
+
+       if (window.myChart && typeof window.myChart.destroy === 'function') {
+            window.myChart.destroy();
+        }
+       const valuesArray = relevantData.map(item => item.value);
+       const concatenatedString = valuesArray.join(' ');
+
+       if (!concatenatedString || concatenatedString.length === 0) {
+        // Send an alert to the user if data is missing
+        alert("Cannot generate word cloud without student responses.");
+        return;
+    }
+        fetch('https://capstone-citizen-science.wl.r.appspot.com/wordcloud', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            text: concatenatedString,
+        }),
+      })
+        .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        // Server returns the base64-encoded png image
+        return response.text();
+    })
+        .then(data => {
+            console.log(data);
+            renderCloud(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    function renderCloud(imageUrl) {
+        const canvasContainer = document.getElementById('myChartContainer');
+
+        // Create img element
+        const img = new Image();
+        img.id = 'wordCloudImage';
+        img.src = `data:image/svg+xml;base64,${imageUrl}`;
+        img.alt = 'Word Cloud';
+
+        // Append the img element
+        canvasContainer.innerHTML = '';
+        canvasContainer.appendChild(img);
+}
+
+
+    function removeWordCloudImage() {
+        const wordCloudImage = document.getElementById('wordCloudImage');
+        if (wordCloudImage) {
+            wordCloudImage.remove();
+        }
+    }

@@ -34,7 +34,7 @@ def projects_get_post():
         userinfo = session.get('user').get("userinfo")
         user = userinfo.get("sub")
     except:
-        return redirect('/login',code = 302)
+        return redirect('/login', code=302)
 
     if request.method == 'POST':
         code = code_generator(5, string.ascii_uppercase + string.digits)
@@ -50,21 +50,21 @@ def projects_get_post():
                 query.add_filter("code", "=", code)
                 result = list(query.fetch())
 
-        # Access form data using request.form (because form content-type is not json)
         content = request.get_json()
         content["user"] = user
         content["code"] = code
         content["observations_list"] = []
+        print(content)
 
-        for param in content["parameters"]:
+       #for param in content["parameters"]:
 
-            if param["observation_type"] == "Dropdown":
-                if (len(param["options"])  == 1) & (param["options"][0] == ''):
-                    return jsonify({"error": "Options for Dropdown required"}), 400
+       #    if param["observation_type"] == "Dropdown":
+       #        if (len(param["options"]) == 1) & (param["options"][0] == ''):
+       #            return jsonify({"error": "Options for Dropdown required"}), 400
 
-            if param["observation_type"] == "Checklist":
-                if (len(param["options"])  == 1) & (param["options"][0] == ''):
-                    return jsonify({"error": "Options for Checklist required"}), 400
+       #    if param["observation_type"] == "Checklist":
+       #        if (len(param["options"]) == 1) & (param["options"][0] == ''):
+       #            return jsonify({"error": "Options for Checklist required"}), 400
 
         new_project = datastore.entity.Entity(key=client.key("projects"))
         new_project.update(content)
@@ -122,7 +122,7 @@ def observations_get_post(code, student_id):
     """
     GET , POST , PUT a student's observations
     """
-    
+
     # Convert code to all uppercase.
     if code:
         code = code.upper()
@@ -155,15 +155,16 @@ def observations_get_post(code, student_id):
         project_prompt_len = len(project_prompt)
         observation_parameters_len = len(content["observation_parameters"])
         if observation_parameters_len != project_prompt_len:
-            return jsonify({"error": "Number of prompts submitted in body does not match number of prompts in project"}), 400
-            
+            return jsonify(
+                {"error": "Number of prompts submitted in body does not match number of prompts in project"}), 400
+
         # Validate data entry
-        for obs in content["observation_parameters"]: 
+        for obs in content["observation_parameters"]:
 
             # Check for prompt, observation_type, and value for each item.
             if len(obs) != 3:
                 return jsonify({"error": "Total properties in (" + obs["prompt"] + ") does not equal to 3"}), 400
-                
+
             if "prompt" not in obs or "observation_type" not in obs or "value" not in obs:
                 return jsonify({"error": "Missing prompt, observation_type, or value"}), 400
 
@@ -172,15 +173,14 @@ def observations_get_post(code, student_id):
 
                 # Validate prompt
                 if obs["prompt"] not in project_prompt:
-                        return jsonify({"error": "Numerical prompt (" + obs["prompt"] + ") is not part of project"}), 400
+                    return jsonify({"error": "Numerical prompt (" + obs["prompt"] + ") is not part of project"}), 400
 
                 # Validate value
                 if type(obs["value"]) != int:
                     if obs["value"].isdigit() == False:
-                        return  jsonify({"error": "Numerical entry is not integer type or string type integer"}), 400
+                        return jsonify({"error": "Numerical entry is not integer type or string type integer"}), 400
                 elif type(obs["value"]) == int:
                     obs["value"] = str(obs["value"])
-                    
 
             # Validate dropdown entry
             if obs["observation_type"] == "Dropdown":
@@ -193,20 +193,21 @@ def observations_get_post(code, student_id):
                     # Validate value
                     if param["prompt"] == obs["prompt"]:
                         if selected_dropdown not in param["options"]:
-                            return  jsonify({"error": "Selected dropdown is not an option"}), 400
+                            return jsonify({"error": "Selected dropdown is not an option"}), 400
 
             # Validate checklist entry
-            if obs["observation_type"] == "Checklist":
-                selected_checklist = obs["value"]
-                for param in parameters:
-                    # Validate Prompt
-                    if obs["prompt"] not in project_prompt:
-                        return jsonify({"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
-
-                    # Validate value
-                    if param["prompt"] == obs["prompt"]:
-                        if selected_checklist not in param["options"]:
-                            return  jsonify({"error": "Selected checklist option is not an option"}), 400
+           # if obs["observation_type"] == "Checklist":
+           #     selected_checklist = obs["value"]
+           #     for param in parameters:
+           #         # Validate Prompt
+           #         if obs["prompt"] not in project_prompt:
+           #             return jsonify(
+           #                 {"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
+#
+           #         # Validate value
+           #         if param["prompt"] == obs["prompt"]:
+           #             if selected_checklist not in param["options"]:
+           #                 return jsonify({"error": "Selected checklist option is not an option"}), 400
 
         observation_content = {
             "code": code,
@@ -218,7 +219,7 @@ def observations_get_post(code, student_id):
         client.put(new_observation)
         new_observation_id = str(new_observation.key.id)
         observation_content["id"] = new_observation_id
-        
+
         # Make a copy of observation_content to remove code property to append to observation_list in Project entity
         observation_content_copy = observation_content.copy()
         del observation_content_copy['code']
@@ -247,8 +248,6 @@ def observations_get_post(code, student_id):
             for param in parameters:
                 prompt_options[param["prompt"]] = param["options"]
 
-        
-
             project = results[0]
 
             observations_list = project.get("observations_list", [])
@@ -262,7 +261,7 @@ def observations_get_post(code, student_id):
             for observation in student_observations:
                 for question in observation['observation_parameters']:
                     question["options"] = prompt_options[question["prompt"]]
-                    
+
             project_results[0]["observations_list"].clear()
             project_results[0]["observations_list"] = student_observations
 
@@ -277,13 +276,13 @@ def observations_get_post(code, student_id):
         # Check for id property in received body.
         if content.get("id") == None:
             return jsonify({"error": "Missing id property in body"}), 400
-        
+
         datastore_id = content["id"]
 
         # Check for observation_parameters property in received body.
         if content.get("observation_parameters") == None:
             return jsonify({"error": "Missing observation_parameters property in body"}), 400
-        
+
         # obtain observation Key
         observation_key = client.key("observations", int(datastore_id))
         observation = client.get(key=observation_key)
@@ -304,15 +303,16 @@ def observations_get_post(code, student_id):
         project_prompt_len = len(project_prompt)
         observation_parameters_len = len(content["observation_parameters"])
         if observation_parameters_len != project_prompt_len:
-            return jsonify({"error": "Number of prompts submitted in body does not match number of prompts in project"}), 400
-            
+            return jsonify(
+                {"error": "Number of prompts submitted in body does not match number of prompts in project"}), 400
+
         # Validate data entry
-        for obs in content["observation_parameters"]: 
-            
+        for obs in content["observation_parameters"]:
+
             # Check for prompt, observation_type, and value for each item.
             if len(obs) != 3:
                 return jsonify({"error": "Total properties in (" + obs["prompt"] + ") does not equal to 3"}), 400
-                
+
             if "prompt" not in obs or "observation_type" not in obs or "value" not in obs:
                 return jsonify({"error": "Missing prompt, observation_type, or value"}), 400
 
@@ -321,15 +321,14 @@ def observations_get_post(code, student_id):
 
                 # Validate prompt
                 if obs["prompt"] not in project_prompt:
-                        return jsonify({"error": "Numerical prompt (" + obs["prompt"] + ") is not part of project"}), 400
+                    return jsonify({"error": "Numerical prompt (" + obs["prompt"] + ") is not part of project"}), 400
 
                 # Validate value
                 if type(obs["value"]) != int:
                     if obs["value"].isdigit() == False:
-                        return  jsonify({"error": "Numerical entry is not integer type or string type integer"}), 400
+                        return jsonify({"error": "Numerical entry is not integer type or string type integer"}), 400
                 elif type(obs["value"]) == int:
                     obs["value"] = str(obs["value"])
-                    
 
             # Validate dropdown entry
             if obs["observation_type"] == "Dropdown":
@@ -342,20 +341,21 @@ def observations_get_post(code, student_id):
                     # Validate value
                     if param["prompt"] == obs["prompt"]:
                         if selected_dropdown not in param["options"]:
-                            return  jsonify({"error": "Selected dropdown is not an option"}), 400
+                            return jsonify({"error": "Selected dropdown is not an option"}), 400
 
             # Validate checklist entry
-            if obs["observation_type"] == "Checklist":
-                selected_checklist = obs["value"]
-                for param in parameters:
-                    # Validate Prompt
-                    if obs["prompt"] not in project_prompt:
-                        return jsonify({"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
-
-                    # Validate value
-                    if param["prompt"] == obs["prompt"]:
-                        if selected_checklist not in param["options"]:
-                            return  jsonify({"error": "Selected checklist option is not an option"}), 400
+           # if obs["observation_type"] == "Checklist":
+           #     selected_checklist = obs["value"]
+           #     for param in parameters:
+           #         # Validate Prompt
+           #         if obs["prompt"] not in project_prompt:
+           #             return jsonify(
+           #                 {"error": "Checklist prompt (" + obs["prompt"] + ") is not part of project"}), 400
+#
+           #         # Validate value
+           #         if param["prompt"] == obs["prompt"]:
+           #             if selected_checklist not in param["options"]:
+           #                 return jsonify({"error": "Selected checklist option is not an option"}), 400
 
         # change contents from datastore
         observation["observation_parameters"] = content["observation_parameters"]
@@ -374,7 +374,7 @@ def observations_get_post(code, student_id):
             if project_observation["id"] == str(datastore_id):
                 # Remove old observation
                 project["observations_list"].remove(project_observation)
-                # Append edited observaiton
+                # Append edited observation
                 project["observations_list"].append(observation)
         client.put(project)
 
@@ -417,17 +417,16 @@ def observations_get(code):
         query = client.query(kind="observations")
         query.add_filter("code", "=", code)
 
+        results = list(query.fetch())
+
         # append id to results
         for e in results:
             e["id"] = e.key.id
-
-        results = list(query.fetch())
 
         return jsonify(results), 200
     else:
         return jsonify({"error": "Only GET requests are allowed for this endpoint"}), 405
 
-    
 
 ##################################################################################################
 @datastore_bp.route("/projects", methods=["DELETE"])
@@ -454,7 +453,7 @@ def observations_delete():
                 for observation in observations_list:
                     observation_id = observation["id"]
                     observation_key = client.key("observations", int(observation_id))
-                    observation = client.get(key = observation_key)
+                    observation = client.get(key=observation_key)
                     client.delete(observation)
             project_key = e.key
             project = client.get(project_key)
