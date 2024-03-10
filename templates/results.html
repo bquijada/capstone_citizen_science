@@ -45,16 +45,18 @@
 </div>
 
 <script>
-    var button = document.getElementById("graphButton");
+    var buttons = document.querySelectorAll(".graph-btn");
 
-    var observationType = button.getAttribute("data-type");
+    buttons.forEach(function(button) {
+        var observationType = button.getAttribute("data-type");
 
-    // Set button text based on data type
-    if (observationType === "Text") {
-        button.textContent = "Generate Word Cloud";
-    } else {
-        button.textContent = "Generate Graph";
-    }
+        // Set button text based on data type
+        if (observationType === "Text") {
+            button.textContent = "Generate Word Cloud";
+        } else {
+            button.textContent = "Generate Graph";
+        }
+    });
 </script>
 
 

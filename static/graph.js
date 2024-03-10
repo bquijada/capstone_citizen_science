@@ -8,12 +8,17 @@ $(document).ready(function() {
         if (obsType === 'Numerical') {
             generateScatterPlot(prompt, relevantData);
         } 
-        else if (obsType === 'Dropdown' || obsType === 'Checkbox') {
+        else if (obsType === 'Dropdown') {
             generateBarChart(prompt, relevantData);
         }
 
         else if (obsType === 'Text'){
             generateWordCloud(relevantData);
+        }
+
+        else if (obsType === 'Checkbox'){
+            data = checkboxToBarChartData(relevantData);
+            generateBarChartFromCheckbox(prompt, data);
         }
     });
 
@@ -194,4 +199,64 @@ $(document).ready(function() {
         if (wordCloudImage) {
             wordCloudImage.remove();
         }
+    }
+
+
+    function checkboxToBarChartData(relevantData){
+        const valuesArray = relevantData.flatMap(item => {
+    if (Array.isArray(item.value)) {
+        // If item.value is an array, split it into individual items
+        return item.value;
+    } else {
+        // If item.value is not an array, create a new array with the single item
+        return [item.value];
+    }
+    });
+    return valuesArray;
+    }
+
+
+    function generateBarChartFromCheckbox(prompt, data) {
+        if (window.myChart && typeof window.myChart.destroy === 'function') {
+            window.myChart.destroy();
+        }
+        removeWordCloudImage();
+        var ctx = document.getElementById('myChart').getContext('2d');
+
+        // Calculate frequencies
+        const valueCounts = {};
+        data.forEach(item => {
+            valueCounts[item] = (valueCounts[item] || 0) + 1;
+        });
+
+        const labels = Object.keys(valueCounts);
+        const frequencies = Object.values(valueCounts);
+        window.myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: prompt,
+                    data: frequencies,
+                    // Add more styling options here
+                }]
+            },
+            options: {
+                scales: {
+                    x: {  // Options for the x-axis
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        }
+                    },
+                    y: {  // Options for the y-axis
+                        title: {
+                            display: true,
+                            text: 'Frequency'
+                        }
+                    }
+                }
+            }
+            // Add more Chart.js options here for customization
+        });
     }
