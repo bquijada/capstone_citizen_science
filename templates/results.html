@@ -23,7 +23,11 @@
                 {% for obs_param in obs.observation_parameters %}
                 {% if obs_param.prompt == prompt.prompt %}
                 <tr>
-                    <td>{{ obs_param.value }}</td>
+                    <td>{% if obs_param.value is iterable and obs_param.value is not string %}
+                            {{ obs_param.value | join(', ') }}
+                        {% else %}
+                            {{ obs_param.value }}
+                        {% endif %}</td>
                     <td>{{ obs.student_id }}</td>
                     <td>{{ obs.time_date }}</td>
                 </tr>
