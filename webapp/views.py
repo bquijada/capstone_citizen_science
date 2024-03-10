@@ -12,7 +12,12 @@ def home():
     """
     Homepage endpoint
     """
-    return render_template('index.html')
+    # Redirect to dashboard if logged in
+    try:
+        if session.get('user').get("userinfo"):
+            return redirect('/dashboard', code=302)
+    except:
+        return render_template('index.html')
 
 @webapp_bp.route("/profile")
 @requires_auth
