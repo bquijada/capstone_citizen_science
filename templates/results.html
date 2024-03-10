@@ -7,7 +7,7 @@
     <button id="download-csv">Download CSV</button>
     <div>
         {% for prompt in project[0].parameters %}
-        <h2>Prompt: {{ prompt.prompt }}</h2>
+        <h2>{{prompt.observation_type}} Prompt: {{ prompt.prompt }}</h2>
 
 
         <table border="1">
