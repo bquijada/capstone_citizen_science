@@ -7,9 +7,11 @@ $(document).ready(function() {
 
         if (obsType === 'Numerical') {
             generateScatterPlot(prompt, relevantData);
-        } else if (obsType === 'Dropdown') {
+        } 
+        else if (obsType === 'Dropdown' || obsType === 'Checkbox') {
             generateBarChart(prompt, relevantData);
         }
+
         else if (obsType === 'Text'){
             generateWordCloud(relevantData);
         }
