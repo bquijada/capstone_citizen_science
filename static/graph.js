@@ -100,7 +100,7 @@ $(document).ready(function() {
                         },
                         ticks:{
                             autoSkip: false,
-                            maxTicksLimit: 10,
+                            maxTicksLimit: 30,
                             stepSize:1,
                             minRotation: 45,
                         }
