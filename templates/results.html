@@ -7,7 +7,7 @@
     <button id="download-csv">Download CSV</button>
     <div>
         {% for prompt in project[0].parameters %}
-        <h2>Prompt: {{ prompt.prompt }}</h2>
+        <h2>{{prompt.observation_type}} Prompt: {{ prompt.prompt }}</h2>
 
 
         <table border="1">
@@ -23,7 +23,11 @@
                 {% for obs_param in obs.observation_parameters %}
                 {% if obs_param.prompt == prompt.prompt %}
                 <tr>
-                    <td>{{ obs_param.value }}</td>
+                    <td>{% if obs_param.value is iterable and obs_param.value is not string %}
+                            {{ obs_param.value | join(', ') }}
+                        {% else %}
+                            {{ obs_param.value }}
+                        {% endif %}</td>
                     <td>{{ obs.student_id }}</td>
                     <td>{{ obs.time_date }}</td>
                 </tr>
@@ -45,16 +49,18 @@
 </div>
 
 <script>
-    var button = document.getElementById("graphButton");
+    var buttons = document.querySelectorAll(".graph-btn");
 
-    var observationType = button.getAttribute("data-type");
+    buttons.forEach(function(button) {
+        var observationType = button.getAttribute("data-type");
 
-    // Set button text based on data type
-    if (observationType === "Text") {
-        button.textContent = "Generate Word Cloud";
-    } else {
-        button.textContent = "Generate Graph";
-    }
+        // Set button text based on data type
+        if (observationType === "Text") {
+            button.textContent = "Generate Word Cloud";
+        } else {
+            button.textContent = "Generate Graph";
+        }
+    });
 </script>
 
 
