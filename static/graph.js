@@ -103,9 +103,6 @@ $(document).ready(function() {
                             maxTicksLimit: 10,
                             stepSize:1,
                             minRotation: 45,
-                            min:"2024-03-10",
-                            max:"2024-03-20"
-
                         }
                     },
                     y: {  // Options for the y-axis
