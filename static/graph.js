@@ -20,6 +20,11 @@ $(document).ready(function() {
             data = checkboxToBarChartData(relevantData);
             generateBarChartFromCheckbox(prompt, data);
         }
+
+        else if (obsType === 'Checklist'){
+            data = checkboxToBarChartData(relevantData);
+            generateBarChartFromCheckbox(prompt, data);
+        }
     });
 
     function extractData(projectData, prompt) {
@@ -36,7 +41,8 @@ $(document).ready(function() {
                         value: obsParam.value,
                         student_id: observationSet.student_id,
                         date: date,
-                        time: new_time 
+                        time: new_time,
+                        datetime: date + "T" + time 
                     });
                 }
             }
@@ -50,9 +56,21 @@ $(document).ready(function() {
         }
         removeWordCloudImage();
         var ctx = document.getElementById('myChart').getContext('2d');
-
-        const xValues = data.map(item => item.value);
-        const yValues = data.map(item => item.time);
+        const yValues = data.map(item => item.value);
+        const xValues = data.map(item => item.datetime);
+        
+        //Handle mins of graph
+        var newDate =  new Date(xValues[0])
+        var startDate = new Date()
+        startDate.setDate(newDate.getDate())
+        var endDate = new Date()
+        endDate.setDate(newDate.getDate() +1)
+        var min = startDate.toISOString().split('T')[0]
+        var max = endDate.toISOString().split('T')[0]
+        xValues.unshift(min)
+        yValues.unshift(null)
+        xValues.push(max)
+        yValues.push(null)
 
         window.myChart = new Chart(ctx, {
             type: 'scatter',
@@ -66,16 +84,34 @@ $(document).ready(function() {
             },
             options: {
                 scales: {
-                    x: {  // Options for the x-axis
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            displayFormats: {
+                                day: 'yyyy-MM-dd'
+                            }
+                            
+                        },
                         title: {
                             display: true,
-                            text: 'Value' 
+                            text: 'Date' 
+
+                        },
+                        ticks:{
+                            autoSkip: false,
+                            maxTicksLimit: 10,
+                            stepSize:1,
+                            minRotation: 45,
+                            min:"2024-03-10",
+                            max:"2024-03-20"
+
                         }
                     },
                     y: {  // Options for the y-axis
                         title: {
                             display: true,
-                            text: 'Tine' 
+                            text: 'Value' 
                         }
                     }
                 }
