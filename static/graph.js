@@ -99,7 +99,7 @@ $(document).ready(function() {
 
                         },
                         ticks:{
-                            autoSkip: false,
+                            autoSkip: True,
                             maxTicksLimit: 30,
                             stepSize:1,
                             minRotation: 45,
