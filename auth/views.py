@@ -59,7 +59,7 @@ def callback():
         new_user = datastore.entity.Entity(key=client.key("users"))
         new_user.update({"name": user_name, "email": user_email, "user": user_id})
         client.put(new_user)
-    return render_template('admin_dashboard.html', name=user_name)
+    return redirect('/dashboard', code=302)
 
 
 @auth_bp.route("/login")
@@ -105,10 +105,12 @@ def create_new_project():
 @auth_bp.route("/view_projects")
 def view_projects():
     """Displays view projects page with all projects of a user"""
-    userinfo = session.get('user').get("userinfo")
-    user_id = userinfo.get("sub")
-    if not user_id:
-        return "User not authenticated", 401
+    # Check for authorization
+    try:
+        userinfo = session.get('user').get("userinfo")
+        user_id = userinfo.get("sub")
+    except:
+        return redirect('/login', code=302)
     url = PROJECT_URL + "/users/projects/" + user_id
 
     response = requests.get(url)
@@ -121,6 +123,12 @@ def view_projects():
 
 @auth_bp.route("/create_project")
 def create_project():
+    # Check for authorization
+    try:
+        session.get('user').get("userinfo")
+    except:
+        return redirect('/login', code=302)
+    
     """Display project page after creating a new project"""
     return render_template('project.html')
 
@@ -128,6 +136,12 @@ def create_project():
 @auth_bp.route("/results/<code>")
 def view_results(code):
     """Display results page for a project"""
+    # Check for authorization
+    try:
+        session.get('user').get("userinfo")
+    except:
+        return redirect('/login', code=302)
+    
     url = PROJECT_URL + "/projects/" + code
     response = requests.get(url)
     if response.status_code == 200:
@@ -138,8 +152,13 @@ def view_results(code):
 
 @auth_bp.route("/dashboard")
 def admin_dashboard():
-    userinfo = session.get('user').get("userinfo")
-    user_name = userinfo.get("name")
+    # Check for authorization
+    try:
+        userinfo = session.get('user').get("userinfo")
+        user_name = userinfo.get("name")
+    except:
+        return redirect('/login', code=302)
+    
     return render_template('admin_dashboard.html', name=user_name)
 
 
